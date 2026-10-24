@@ -1,0 +1,26 @@
+# פריסת ה-Server ב-Render מתוך ה-Repository (תיקיית server).
+# מסד הנתונים נפרד: PostgreSQL חינמי מכל ספק (למשל Supabase / Neon / Render Postgres).
+services:
+  - type: web
+    name: escapeverse-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # מדביקים ידנית ב-Render (Connection String של ה-PostgreSQL)
+      - key: JWT_SECRET
+        generateValue: true # Render מייצר סוד אקראי
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_ORIGIN
+        sync: false # כתובת ה-Client, למשל https://my-app.onrender.com
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false

@@ -1,0 +1,1683 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ESCAPEVERSE API",
+    "version": "1.0.0",
+    "description": "API של חדרי בריחה דיגיטליים.\n\n**איך מתחברים ב-Swagger:** בצעי `POST /auth/login`, העתיקי את ה-`token` מהתשובה, לחצי **Authorize** והדביקי אותו."
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "השרת הנוכחי"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System"
+    },
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Rooms"
+    },
+    {
+      "name": "Puzzles"
+    },
+    {
+      "name": "Progress"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "player",
+              "admin"
+            ]
+          }
+        }
+      },
+      "AuthResult": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "timeLimit": {
+            "type": "integer",
+            "description": "דקות (1-180)"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ]
+          },
+          "finalText": {
+            "type": "string",
+            "nullable": true
+          },
+          "puzzleCount": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RoomInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "imageUrl",
+          "difficulty",
+          "category",
+          "timeLimit"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "timeLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 180
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "default": "draft"
+          },
+          "finalText": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Puzzle": {
+        "type": "object",
+        "description": "חידה. אין בה את שדה התשובה. storyText הוא null עד שהחידה נפתרת (למנהלת תמיד מלא).",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "roomId": {
+            "type": "integer"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "hotspotLabel": {
+            "type": "string"
+          },
+          "storyText": {
+            "type": "string",
+            "nullable": true
+          },
+          "solved": {
+            "type": "boolean",
+            "description": "רק לשחקנית"
+          }
+        }
+      },
+      "PuzzleInput": {
+        "type": "object",
+        "required": [
+          "order",
+          "title",
+          "prompt",
+          "hotspotLabel",
+          "storyText",
+          "answer"
+        ],
+        "properties": {
+          "order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "hotspotLabel": {
+            "type": "string"
+          },
+          "storyText": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "description": "נשמר בשרת בלבד"
+          }
+        }
+      },
+      "Progress": {
+        "type": "object",
+        "properties": {
+          "roomId": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "in_progress",
+              "completed"
+            ]
+          },
+          "solvedPuzzleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "בדיקת בריאות שרת ומסד נתונים",
+        "description": "בדיקת בריאות שרת ומסד נתונים\n\n**הרשאה:** ציבורי – ללא Token.",
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "הרשמה (נוצרת שחקנית – player)",
+        "description": "הרשמה (נוצרת שחקנית – player)\n\n**הרשאה:** ציבורי – ללא Token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                }
+              },
+              "example": {
+                "name": "דנה",
+                "email": "dana@example.com",
+                "password": "Secret123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResult"
+                },
+                "example": {
+                  "token": "<JWT>",
+                  "user": {
+                    "id": 2,
+                    "name": "דנה",
+                    "email": "player@example.com",
+                    "role": "player"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "האימייל כבר רשום",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "האימייל כבר רשום במערכת"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "התחברות וקבלת JWT",
+        "description": "התחברות וקבלת JWT\n\n**הרשאה:** ציבורי – ללא Token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "email": "player@example.com",
+                "password": "Player123!"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResult"
+                },
+                "example": {
+                  "token": "<JWT>",
+                  "user": {
+                    "id": 2,
+                    "name": "דנה",
+                    "email": "player@example.com",
+                    "role": "player"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "אימייל או סיסמה שגויים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אימייל או סיסמה שגויים"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "פרטי המשתמשת המחוברת",
+        "description": "פרטי המשתמשת המחוברת\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": 2,
+                  "name": "דנה",
+                  "email": "player@example.com",
+                  "role": "player"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "רשימת חדרים עם חיפוש, סינון ומיון",
+        "description": "רשימת חדרים עם חיפוש, סינון ומיון\n\n**הרשאה:** ציבורי. אם נשלח Token של מנהלת, מוחזרים גם חדרים שאינם מפורסמים.",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "חיפוש בשם ובתיאור"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "easy",
+                "medium",
+                "hard"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "archived"
+              ]
+            },
+            "description": "משפיע רק למנהלת"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "difficulty",
+                "timeLimit",
+                "createdAt"
+              ],
+              "default": "createdAt"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Room"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "name": "הספרייה הנעלמת",
+                    "description": "ספרייה עתיקה שבה כל הספרים נעלמו…",
+                    "imageUrl": "/images/library.jpg",
+                    "difficulty": "easy",
+                    "category": "מסתורין",
+                    "timeLimit": 20,
+                    "status": "published",
+                    "finalText": "כך נחשף סוד הספרייה…",
+                    "puzzleCount": 3,
+                    "createdAt": "2026-01-01T10:00:00.000Z",
+                    "updatedAt": "2026-01-01T10:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "יצירת חדר",
+        "description": "יצירת חדר\n\n**הרשאה:** דורש Token של מנהלת (admin) בלבד.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomInput"
+              },
+              "example": {
+                "name": "החממה הסודית",
+                "description": "חממה נשכחת מסתירה סוד",
+                "imageUrl": "/images/greenhouse.jpg",
+                "difficulty": "medium",
+                "category": "הרפתקה",
+                "timeLimit": 25,
+                "status": "draft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                },
+                "example": {
+                  "id": 2,
+                  "name": "החממה הסודית",
+                  "description": "חממה נשכחת מסתירה סוד",
+                  "imageUrl": "/images/greenhouse.jpg",
+                  "difficulty": "medium",
+                  "category": "הרפתקה",
+                  "timeLimit": 25,
+                  "status": "draft",
+                  "finalText": "כך נחשף סוד הספרייה…",
+                  "puzzleCount": 0,
+                  "createdAt": "2026-01-01T10:00:00.000Z",
+                  "updatedAt": "2026-01-01T10:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "אין הרשאה (נדרשת מנהלת)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אין לך הרשאה לפעולה זו"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}": {
+      "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "פרטי חדר",
+        "description": "פרטי חדר\n\n**הרשאה:** ציבורי. אם נשלח Token של מנהלת, מוחזרים גם חדרים שאינם מפורסמים.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "הספרייה הנעלמת",
+                  "description": "ספרייה עתיקה שבה כל הספרים נעלמו…",
+                  "imageUrl": "/images/library.jpg",
+                  "difficulty": "easy",
+                  "category": "מסתורין",
+                  "timeLimit": 20,
+                  "status": "published",
+                  "finalText": "כך נחשף סוד הספרייה…",
+                  "puzzleCount": 3,
+                  "createdAt": "2026-01-01T10:00:00.000Z",
+                  "updatedAt": "2026-01-01T10:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "עריכת חדר (אפשר לשלוח רק חלק מהשדות)",
+        "description": "עריכת חדר (אפשר לשלוח רק חלק מהשדות)\n\n**הרשאה:** דורש Token של מנהלת (admin) בלבד.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomInput"
+              },
+              "example": {
+                "status": "published",
+                "timeLimit": 30
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "הספרייה הנעלמת",
+                  "description": "ספרייה עתיקה שבה כל הספרים נעלמו…",
+                  "imageUrl": "/images/library.jpg",
+                  "difficulty": "easy",
+                  "category": "מסתורין",
+                  "timeLimit": 20,
+                  "status": "published",
+                  "finalText": "כך נחשף סוד הספרייה…",
+                  "puzzleCount": 3,
+                  "createdAt": "2026-01-01T10:00:00.000Z",
+                  "updatedAt": "2026-01-01T10:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "אין הרשאה (נדרשת מנהלת)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אין לך הרשאה לפעולה זו"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}/puzzles": {
+      "get": {
+        "tags": [
+          "Puzzles"
+        ],
+        "summary": "חידות החדר (בלי תשובות)",
+        "description": "חידות החדר (בלי תשובות)\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Puzzle"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "roomId": 1,
+                    "order": 1,
+                    "title": "הספר האבוד",
+                    "prompt": "מה המילה החסרה בשער הספרייה?",
+                    "hotspotLabel": "מדף",
+                    "storyText": null,
+                    "solved": false
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Puzzles"
+        ],
+        "summary": "הוספת חידה לחדר",
+        "description": "הוספת חידה לחדר\n\n**הרשאה:** דורש Token של מנהלת (admin) בלבד.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PuzzleInput"
+              },
+              "example": {
+                "order": 1,
+                "title": "הספר האבוד",
+                "prompt": "מה המילה החסרה בשער הספרייה?",
+                "hotspotLabel": "מדף",
+                "storyText": "מאחורי המדף נמצא מכתב ישן…",
+                "answer": "אור"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Puzzle"
+                },
+                "example": {
+                  "id": 1,
+                  "roomId": 1,
+                  "order": 1,
+                  "title": "הספר האבוד",
+                  "prompt": "מה המילה החסרה בשער הספרייה?",
+                  "hotspotLabel": "מדף",
+                  "storyText": "מאחורי המדף נמצא מכתב ישן…",
+                  "solved": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "אין הרשאה (נדרשת מנהלת)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אין לך הרשאה לפעולה זו"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "מספר סדר כבר קיים בחדר",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "הערך כבר קיים במערכת"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rooms/{id}/story": {
+      "get": {
+        "tags": [
+          "Progress"
+        ],
+        "summary": "הסיפור המלא – רק אחרי השלמת החדר",
+        "description": "הסיפור המלא – רק אחרי השלמת החדר\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "roomName": "הספרייה הנעלמת",
+                  "puzzles": [
+                    {
+                      "id": 1,
+                      "title": "הספר האבוד",
+                      "storyText": "מאחורי המדף נמצא מכתב ישן…"
+                    }
+                  ],
+                  "finalText": "כך נחשף סוד הספרייה…"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "החדר טרם הושלם",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "הסיפור נחשף רק אחרי השלמת החדר"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/puzzles/{id}": {
+      "put": {
+        "tags": [
+          "Puzzles"
+        ],
+        "summary": "עריכת חידה (אפשר לשלוח רק חלק מהשדות)",
+        "description": "עריכת חידה (אפשר לשלוח רק חלק מהשדות)\n\n**הרשאה:** דורש Token של מנהלת (admin) בלבד.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החידה",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PuzzleInput"
+              },
+              "example": {
+                "prompt": "ניסוח חדש לחידה"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Puzzle"
+                },
+                "example": {
+                  "id": 1,
+                  "roomId": 1,
+                  "order": 1,
+                  "title": "הספר האבוד",
+                  "prompt": "מה המילה החסרה בשער הספרייה?",
+                  "hotspotLabel": "מדף",
+                  "storyText": "מאחורי המדף נמצא מכתב ישן…",
+                  "solved": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "אין הרשאה (נדרשת מנהלת)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אין לך הרשאה לפעולה זו"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החידה לא נמצאה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החידה לא נמצאה"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/puzzles/{id}/answer": {
+      "post": {
+        "tags": [
+          "Puzzles"
+        ],
+        "summary": "שליחת תשובה לחידה",
+        "description": "מחזיר רק נכון/לא נכון. תשובה נכונה נשמרת בהתקדמות של המשתמשת המחוברת.\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החידה",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "answer"
+                ],
+                "properties": {
+                  "answer": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "answer": "אור"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "correct": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "correct": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החידה לא נמצאה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החידה לא נמצאה"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/progress": {
+      "get": {
+        "tags": [
+          "Progress"
+        ],
+        "summary": "ההתקדמות שלי בכל החדרים",
+        "description": "ההתקדמות שלי בכל החדרים\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Progress"
+                  }
+                },
+                "example": [
+                  {
+                    "roomId": 1,
+                    "status": "in_progress",
+                    "solvedPuzzleIds": [
+                      1
+                    ],
+                    "startedAt": "2026-01-01T10:00:00.000Z",
+                    "completedAt": null
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/progress/{roomId}": {
+      "get": {
+        "tags": [
+          "Progress"
+        ],
+        "summary": "ההתקדמות שלי בחדר אחד (אם לא התחילה: status = not_started)",
+        "description": "ההתקדמות שלי בחדר אחד (אם לא התחילה: status = not_started)\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Progress"
+                },
+                "example": {
+                  "roomId": 1,
+                  "status": "in_progress",
+                  "solvedPuzzleIds": [
+                    1
+                  ],
+                  "startedAt": "2026-01-01T10:00:00.000Z",
+                  "completedAt": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/progress/{roomId}/start": {
+      "post": {
+        "tags": [
+          "Progress"
+        ],
+        "summary": "התחלת חדר (אם כבר התחילה – מחזיר את ההתקדמות הקיימת)",
+        "description": "התחלת חדר (אם כבר התחילה – מחזיר את ההתקדמות הקיימת)\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Progress"
+                },
+                "example": {
+                  "roomId": 1,
+                  "status": "in_progress",
+                  "solvedPuzzleIds": [],
+                  "startedAt": "2026-01-01T10:00:00.000Z",
+                  "completedAt": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

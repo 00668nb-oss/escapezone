@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  player
+  admin
+  guest
+}
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+enum RoomStatus {
+  draft
+  published
+  archived
+}
+
+enum ProgressStatus {
+  in_progress
+  completed
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(player)
+  createdAt    DateTime   @default(now())
+  progress     Progress[]
+}
+
+model Room {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String
+  imageUrl    String
+  difficulty  Difficulty
+  category    String
+  timeLimit   Int
+  status      RoomStatus @default(draft)
+  finalText  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  puzzles     Puzzle[]
+  progress    Progress[]
+}
+
+model Puzzle {
+  id           Int            @id @default(autoincrement())
+  roomId       Int
+  order        Int
+  title        String
+  prompt       String
+  hotspotLabel String
+  storyText    String
+  answer       String
+  room         Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  solved       SolvedPuzzle[]
+
+  @@unique([roomId, order])
+}
+
+model Progress {
+  id          Int            @id @default(autoincrement())
+  userId      Int
+  roomId      Int
+  status      ProgressStatus @default(in_progress)
+  startedAt   DateTime       @default(now())
+  completedAt DateTime?
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room        Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  solved      SolvedPuzzle[]
+
+  @@unique([userId, roomId])
+}
+
+model SolvedPuzzle {
+  progressId Int
+  puzzleId   Int
+  solvedAt   DateTime @default(now())
+  progress   Progress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  puzzle     Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  @@id([progressId, puzzleId])
+}

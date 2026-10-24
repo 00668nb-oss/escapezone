@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>תשובות Claude – ESCAPEVERSE</title>
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.7; text-align: right; background: #fafafa; color: #222; }
+  h1 { border-bottom: 3px solid #6b4eff; padding-bottom: .4rem; }
+  section.answer { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 1rem 1.5rem; margin: 1.5rem 0; }
+  section.answer h2 { margin-top: 0; color: #4a35c4; }
+  pre, code { direction: ltr; text-align: left; font-family: Consolas, monospace; }
+  pre { background: #1e1e2e; color: #eee; padding: 1rem; border-radius: 8px; overflow-x: auto; white-space: pre; }
+  code { background: #eee; padding: 0 .3rem; border-radius: 4px; }
+  pre code { background: none; }
+</style>
+</head>
+<body>
+<h1>תשובות Claude – ESCAPEVERSE</h1>
+
+<section class="answer" id="a1">
+  <h2>1. סקירת מצב – שלב 2 (תשתית לקוח)</h2>
+  <p><strong>מה כבר קיים:</strong> <code>client/.env</code> עם <code>VITE_API_URL</code> ✔, וקובץ <code>types/index.ts</code> שהתחלת לכתוב.</p>
+
+  <h3>הערות על <code>types/index.ts</code> – הטיפוסים צריכים לשקף את מה שהשרת <em>מחזיר בפועל</em></h3>
+  <ol>
+    <li><strong>Role:</strong> בשרת הערכים הם <code>"player"</code> ו-<code>"admin"</code>. אצלך כתוב <code>"admin" | "user" | "guest"</code>. צריך להחליף. בנוסף, שם טיפוס עדיף באות גדולה (<code>Role</code>, <code>Difficulty</code>, <code>RoomStatus</code>) כמו שאר הטיפוסים.</li>
+    <li><strong>User:</strong> השרת מחזיר רק <code>id, name, email, role</code>. <code>passwordHash</code> לא נשלח אף פעם ללקוח, ו-<code>progress</code> לא נמצא בתוך User. מחקי את שניהם.</li>
+    <li><strong>Room:</strong> השדה נקרא <code>finaleText</code> (לא <code>finalText</code>). השדות <code>puzzles</code> ו-<code>progress</code> לא חלק מהתשובה של חדר – מחקי. התאריכים מגיעים ב-JSON כמחרוזות (<code>string</code>), לא <code>Date</code>.</li>
+    <li><strong>Puzzle:</strong> <code>answer</code> לא קיים בשום תשובה (זה עיקר העיקרון של הפרויקט!). מחקי אותו מהטיפוס. גם <code>room</code> לא נשלח. הוסיפי <code>solved</code> כשדה אופציונלי (boolean), ו-<code>storyText</code> הוא <code>string | null</code> (נכון אצלך).</li>
+    <li><strong>Progress:</strong> המבנה בשרת שטוח: <code>roomId, status, solvedPuzzleIds: number[], startedAt, completedAt</code>. אין <code>user</code>, <code>room</code>, <code>id</code> או <code>solved</code> מקוננים. הטיפוס <code>SolvedPuzzle</code> מיותר.</li>
+    <li><strong>טיפוסים שחסרים (לפי PLAN):</strong> <code>RoomInput</code> (שדות הטופס: name, description, imageUrl, difficulty, category, timeLimit, status?, finaleText?), <code>PuzzleInput</code> (order, title, prompt, hotspotLabel, storyText?, answer – כאן כן, כי זה מה שהמנהלת שולחת), <code>RoomFilters</code> (search, category, difficulty, status, sort, order – הכול אופציונלי).</li>
+  </ol>
+  <p>הכלל: טיפוס בצד לקוח = "צורת ה-JSON שמגיעה/יוצאת בתעלה", לא שיקוף של טבלת ה-DB. מקור האמת: <code>server/FRONTEND-API-GUIDE.md</code>, סעיף "טיפוסים".</p>
+
+  <h3>הצעד הבא (אחרי שתתקני את הטיפוסים)</h3>
+  <p><code>api/client.ts</code> – פונקציית fetch כללית אחת. צעדים:</p>
+  <ol>
+    <li>קבלי את הכתובת מ-<code>import.meta.env.VITE_API_URL</code>.</li>
+    <li>הפונקציה מקבלת נתיב, method ו-body אופציונלי, ומחזירה Promise עם הטיפוס שמבקשים (generic).</li>
+    <li>אם יש token (שמור ב-localStorage) – הוסיפי Header בשם <code>Authorization</code> בפורמט <code>Bearer &lt;token&gt;</code>. אם יש body – גם <code>Content-Type: application/json</code>.</li>
+    <li>אם <code>response.ok</code> שקר – קראי את גוף השגיאה וזרקי שגיאה שמכילה <code>status</code>, <code>error</code>, ו-<code>details</code> (כדי שאחר כך ב-React Hook Form אפשר יהיה לעשות <code>setError</code> לכל שדה).</li>
+    <li>תשובה בלי גוף (למשל 204) – אל תקראי <code>json()</code> בלי בדיקה.</li>
+  </ol>
+  <p>כתבי ושלחי לי לסקירה. שאלת הבנה אליך: למה ה-token נשמר ב-localStorage ולא רק ב-state, ומה קורה בלי זה ברענון?</p>
+</section>
+
+<section class="answer" id="a2">
+  <h2>2. למה לא <code>guest</code>, ו-<code>finaleText</code> מול <code>finalText</code></h2>
+  <h3>האם להוסיף <code>guest</code> ל-Role?</h3>
+  <p><code>Role</code> בלקוח מתאר ערך ש<strong>השרת שומר ב-DB ומחזיר</strong> ב-<code>user.role</code>. ב-Prisma ה-enum הוא רק <code>player | admin</code>, אז לעולם לא יגיע <code>guest</code> מהשרת. "אורחת" היא לא תפקיד אלא <strong>מצב של אי-התחברות</strong>: אין token, ו-<code>user</code> ב-AuthContext הוא <code>null</code>. לכן מייצגים אותה ב-<code>null</code>, לא בערך נוסף.</p>
+  <p>הוספת <code>guest</code> היא בעייתית: (1) הטיפוס משקר – מבטיח ערך שלא קיים; (2) <code>ProtectedRoute</code> עם prop <code>role</code> יצטרך לטפל במקרה שלא יקרה; (3) בלבול בין "אין משתמשת" ל"משתמשת עם תפקיד אורחת". אם בעתיד נרצה אורחת אמיתית עם הרשאות – אז מוסיפים ל-enum בשרת קודם, ואז לטיפוס.</p>
+  <p>הערה נוספת: השם הנכון של התפקיד הרגיל הוא <code>player</code> (לא <code>user</code>), כפי שבשרת ובמסמך ה-API.</p>
+
+  <h3><code>finaleText</code> או <code>finalText</code>?</h3>
+  <p>בדקתי בשרת: השדה נקרא <code>finaleText</code> (עם <strong>e</strong>) בכל מקום – <code>schema.prisma</code>, <code>room.schema.ts</code>, <code>openapi.ts</code>, ובתשובת <code>GET /rooms/:id/story</code>. ב-<code>CLAUDE.md</code> ו-<code>PLAN.md</code> אין אזכור לשם הזה בכלל, כך שלא מצאתי מקור ל-"FINAL" בפרויקט.</p>
+  <p>מה שחשוב: שם השדה בלקוח חייב להיות <strong>זהה אות באות</strong> למה שה-JSON מכיל. אם תכתבי <code>finalText</code>, הערך יהיה <code>undefined</code> בלי שום שגיאה מהמהדר בזמן ריצה, והטופס לא יציג/ישמור את הסיום (השרת יתעלם משדה לא מוכר). לכן: <code>finaleText</code>. אם את רוצה שם אחר – צריך לשנות בשרת (אפשר לבקש ממני, זה קוד שרת).</p>
+  <p>אם ראית "FINAL" במקום מסוים ספציפי (קובץ/שורה) – תגידי איפה ואבדוק.</p>
+</section>
+
+<section class="answer" id="a3">
+  <h2>3. תיקון: שינוי השם ל-<code>finalText</code> בשרת</h2>
+  <p>הבנתי – "finale" היה שגיאת כתיב שלי. שיניתי בשרת הכול ל-<code>finalText</code>: <code>schema.prisma</code>, <code>room.schema.ts</code>, <code>progress.service.ts</code>, <code>openapi.ts</code> / <code>openapi.json</code>, <code>seed.ts</code>, הבדיקות, ו-<code>FRONTEND-API-GUIDE.md</code>. נוספה מיגרציה חדשה <code>20261024000000_rename_final_text</code> שמבצעת <code>RENAME COLUMN</code> (כך הנתונים הקיימים נשמרים).</p>
+  <p><strong>מה את צריכה לעשות:</strong> להפעיל Docker Desktop ואת הקונטיינר <code>escapeverse-db</code>, ואז בתיקיית <code>server</code>: <code>npx prisma migrate deploy</code>, <code>npx prisma generate</code>, <code>npm test</code>. (לא הצלחתי להריץ – Docker כבוי אצלך. <code>typecheck</code> עבר.)</p>
+  <p><strong>ה-API:</strong> בכל מקום שהיה <code>finaleText</code> – עכשיו <code>finalText</code>: אובייקט Room, גוף <code>POST/PUT /rooms</code>, ותשובת <code>GET /rooms/:id/story</code> (<code>{roomName, puzzles, finalText}</code>). בטיפוס <code>Room</code> ו-<code>RoomInput</code> בלקוח: <code>finalText: string | null</code>.</p>
+  <h3>הערות על <code>api/client.ts</code> (שפתחת)</h3>
+  <ol>
+    <li>הפונקציה מקבלת <code>url</code> מלא – עדיף שתקבל <em>נתיב</em> ותשרשר אליו את <code>import.meta.env.VITE_API_URL</code> במקום אחד.</li>
+    <li>חסר Header של <code>Authorization: Bearer &lt;token&gt;</code> כשיש token ב-localStorage.</li>
+    <li><code>JSON.stringify(undefined)</code> ב-GET – עדיף לשלוח body רק כשיש.</li>
+    <li>השגיאה מאבדת מידע: צריך לקרוא את גוף השגיאה של השרת ולזרוק שגיאה עם <code>status</code>, <code>error</code>, <code>details</code> (לשימוש ב-<code>setError</code> בטפסים).</li>
+    <li><code>any</code> מבטל את TypeScript – השתמשי ב-generic (<code>&lt;T&gt;</code>) לטיפוס ההחזרה ו-<code>unknown</code>/טיפוס לגוף.</li>
+    <li>תשובה בלי גוף (204) – <code>response.json()</code> יזרוק.</li>
+    <li>ה-<code>try/catch</code> שרק עושה <code>console.error</code> ו-throw מיותר – ה-React Query יטפל בשגיאה.</li>
+  </ol>
+</section>
+
+</body>
+</html>
