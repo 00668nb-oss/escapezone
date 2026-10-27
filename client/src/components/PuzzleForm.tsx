@@ -1,7 +1,8 @@
-import { register } from "../api/auth";
+import { useForm } from "react-hook-form";
 import { useSavePuzzle } from "../hooks/useSavePuzzle";
 import type { Puzzle } from "../types";
 import { FormField } from "./FormField";
+import { ApiError } from "../api/client";
 
 type PuzzleFormValues = {
   order: number;
@@ -16,122 +17,117 @@ type PuzzleFormProps = { roomId: number; puzzle?: Puzzle; onDone: () => void };
 export function PuzzleForm({ roomId, puzzle, onDone }: PuzzleFormProps) {
   const isEdit = Boolean(puzzle);
   const { mutate, isPending } = useSavePuzzle(roomId);
-  values: {
-    puzzle ? { order: puzzle.order, answer: "" } : undefined;
-  };
-function onSubmit(values){
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm<PuzzleFormValues>({
+    defaultValues: { order: 1 },
+    values: puzzle
+      ? {
+          order: puzzle.order,
+          title: puzzle.title,
+          prompt: puzzle.prompt,
+          hotspotLabel: puzzle.hotspotLabel,
+          storyText: puzzle.storyText ?? "",
+          answer: "",
+        }
+      : undefined,
+  });
+  function onSubmit(values: PuzzleFormValues) {
     const { answer, ...rest } = values;
     const input = answer ? values : rest;
-    mutate({id: puzzle?.id, input},{onSuccess:()=>{reset(), onDone(), 
+    mutate(
+      { id: puzzle?.id, input },
+      {
+        onSuccess: () => {
+          reset();
+          onDone();
+        },
         onError: (saveError) => {
-              if (saveError instanceof ApiError) {
-                if (saveError.details) {
-                  for (const detail of saveError.details) {
-                    setError(detail.field as keyof RoomFormValues, {
-                      message: detail.message,
-                    });
-                  }
-                }
+          if (saveError instanceof ApiError) {
+            if (saveError.details) {
+              for (const detail of saveError.details) {
+                setError(detail.field as keyof PuzzleFormValues, {
+                  message: detail.message,
+                });
               }
-              setError("root", { message: saveError.message });
-            }}})
-            return(
-                <form className="admin-puzzle-form" onSubmit={handleSubmit(onSubmit)}>
-<h2>{isEdit ? "עריכת חידה" : "חידה חדשה"}</h2>
-<FormField label="שם" htmlFor="name" error={errors.name?.message}>
+            }
+          }
+          setError("root", { message: saveError.message });
+        },
+      },
+    );
+  }
+  return (
+    <form className="admin-puzzle-form" onSubmit={handleSubmit(onSubmit)}>
+      <h2>{isEdit ? "עריכת חידה" : "חידה חדשה"}</h2>
+      <FormField label="סדר" htmlFor="order" error={errors.order?.message}>
         <input
-          id="name"
-          type="text"
-          {...register("name", {
-            required: "חובה להזין שם",
+          id="order"
+          type="number"
+          {...register("order", {
+            required: "חובה להזין סדר",
             minLength: { value: 2, message: "שם קצר מדי" },
           })}
         />
       </FormField>
 
-      <FormField
-        label="תמונה"
-        htmlFor="imageUrl"
-        error={errors.imageUrl?.message}
-      >
+      <FormField label="כותרת" htmlFor="title" error={errors.title?.message}>
         <input
-          id="imageUrl"
-          type="url"
-          {...register("imageUrl", { required: "חובה להזין תמונה" })}
-        />
-      </FormField>
-      {imageUrl && (
-        <img className="image-preview" src={imageUrl} alt="תצוגה מקדימה" />
-      )}
-
-      <FormField
-        label="קטגוריה"
-        htmlFor="category"
-        error={errors.category?.message}
-      >
-        <input
-          id="category"
+          id="title"
           type="text"
-          {...register("category", { required: "חובה להזין קטגוריה" })}
+          {...register("title", { required: "חובה להזין כותרת" })}
+        />
+      </FormField>
+
+      <FormField label="שאלה" htmlFor="prompt" error={errors.prompt?.message}>
+        <input
+          id="prompt"
+          type="textarea"
+          {...register("prompt", { required: "חובה להזין שאלה" })}
         />
       </FormField>
 
       <FormField
-        label="תיאור"
-        htmlFor="description"
-        error={errors.description?.message}
-      >
-        <textarea
-          id="description"
-          {...register("description", { required: "חובה להזין תיאור" })}
-        />
-      </FormField>
-
-      <FormField
-        label="זמן"
-        htmlFor="timeLimit"
-        error={errors.timeLimit?.message}
+        label="שם החפץ"
+        htmlFor="hotspotLabel"
+        error={errors.hotspotLabel?.message}
       >
         <input
-          id="timeLimit"
-          type="number"
-          {...register("timeLimit", {
-            required: "חובה להזין זמן",
-            valueAsNumber: true,
-            min: { value: 1, message: "לפחות דקה" },
-            max: { value: 180, message: "עד 180 דקות" },
+          id="hotspotLabel"
+          type="text"
+          {...register("hotspotLabel", { required: "חובה להזין את שם החפץ" })}
+        />
+      </FormField>
+
+      <FormField
+        label="קטע סיפור"
+        htmlFor="storyText"
+        error={errors.storyText?.message}
+      >
+        <input
+          id="storyText"
+          type="text"
+          {...register("storyText", {
+            required: "חובה להזין קטע סיפור",
           })}
         />
       </FormField>
 
-      <FormField
-        label="קושי"
-        htmlFor="difficulty"
-        error={errors.difficulty?.message}
-      >
-        <select id="difficulty" {...register("difficulty")}>
-          <option value="easy">קל</option>
-          <option value="medium">בינוני</option>
-          <option value="hard">קשה</option>
-        </select>
+      <FormField label="תשובה" htmlFor="answer" error={errors.answer?.message}>
+        <input
+          id="answer"
+          type="text"
+          {...register("answer", {
+            required: isEdit ? false : "חובה להזין תשובה",
+          })}
+        />
       </FormField>
 
-      <FormField label="סטטוס" htmlFor="status" error={errors.status?.message}>
-        <select id="status" {...register("status")}>
-          <option value="draft">טיוטה</option>
-          <option value="published">פורסם</option>
-          <option value="archived">בארכיון</option>
-        </select>
-      </FormField>
-
-      <FormField
-        label="טקסט סיום (אופציונלי)"
-        htmlFor="finalText"
-        error={errors.finalText?.message}
-      >
-        <textarea id="finalText" {...register("finalText")} />
-      </FormField>
-{errors.root && (
+      {errors.root && (
         <p role="alert" className="field-error">
           {errors.root.message}
         </p>
@@ -139,7 +135,6 @@ function onSubmit(values){
       <button type="submit" disabled={isPending}>
         שמירה
       </button>
-                </form>
-            )
-}
+    </form>
+  );
 }

@@ -4393,5 +4393,91 @@ export function NavBar() {
   <div class="note">הערות על המסלול החינמי: השרת "נרדם" אחרי 15 דקות והפנייה הראשונה לוקחת כדקה. מסד הנתונים החינמי של Render נמחק אחרי 30 יום, מספיק להגשה.</div>
 </section>
 
+<section class="answer quick" id="puzzleform-report1">
+  <h2>דוח בדיקה: PuzzleForm.tsx, סבב 1</h2>
+  <div class="warn"><strong>tsc מדווח על שגיאה אחת:</strong> שורה 26, "';' expected". אבל זו רק הראשונה: היא חוסמת את tsc מלבדוק את השאר, ובפועל בקובץ יש הרבה תיקונים. <strong>שורש הבעיה:</strong> העתקת את הטופס של <code>RoomFormPage</code> (שדות החדר: שם, תמונה, קטגוריה, זמן...) אבל בחידה יש שדות אחרים. תוקנים לפי הסדר.</div>
+
+  <h3>1. ייבואים (שורה 1)</h3>
+  <ol class="steps">
+    <li><strong>מה שגוי:</strong> <code>import { register } from "../api/auth"</code>. זו פונקציה שמבצעת <em>הרשמה של משתמשת בשרת</em>, לא <code>register</code> של הטופס. ה-<code>register</code> של הטופס מגיע מ-<code>useForm</code>. <strong>מה עושים:</strong> מחקי את השורה הזו והחליפי בשורה שמייבאת את <code>useForm</code> מהחבילה:
+      <span class="en">import { useForm } from "react-hook-form";</span></li>
+    <li>הוסיפי גם ייבוא של <code>ApiError</code> (משתמשים בו בשורה 27):
+      <span class="en">import { ApiError } from "../api/client";</span></li>
+  </ol>
+
+  <h3>2. הטופס עצמו: שורות 19-21</h3>
+  <ol class="steps">
+    <li><strong>מה שגוי:</strong> השורות <code>values: { puzzle ? ... }</code> עומדות לבד בתוך הפונקציה, ואין קריאה ל-<code>useForm</code>. <code>values:</code> הוא שדה (מפתח באובייקט) והוא חייב להיות בתוך הסוגריים של <code>useForm(...)</code>. <strong>מה עושים:</strong> מחקי את שורות 19-21 וכתבי במקומן את הקריאה, בתבנית (דומה ל-RoomFormPage):
+      <span class="en">const { register, handleSubmit, setError, reset, formState: { errors } } = useForm&lt;PuzzleFormValues&gt;({</span>
+      <span class="en">defaultValues: { order: 1 },</span>
+      <span class="en">values: puzzle ? { … } : undefined,</span>
+      <span class="en">});</span></li>
+    <li>במקום <code>…</code> כתבי את <strong>כל ששת</strong> השדות מתוך <code>puzzle</code> (לא רק <code>order</code>): <code>order: puzzle.order</code>, <code>title: puzzle.title</code>, <code>prompt: puzzle.prompt</code>, <code>hotspotLabel: puzzle.hotspotLabel</code>, <code>storyText: puzzle.storyText ?? ""</code>, ו-<code>answer: ""</code> (תשובה אף פעם לא חוזרת מהשרת). ב-<code>values:</code> אין <code>:</code> נוסף ואין נקודה-פסיק בתוך האובייקט, רק פסיקים.</li>
+  </ol>
+
+  <h3>3. הפונקציה onSubmit: שורות 22-37</h3>
+  <ol class="steps">
+    <li><strong>טיפוס הפרמטר:</strong> חסר. כתבי <code>values</code>, נקודותיים, <code>PuzzleFormValues</code>:
+      <span class="en">function onSubmit(values: PuzzleFormValues) {</span></li>
+    <li><strong>onSuccess (שורה 25, זו השגיאה של tsc):</strong> שני משפטים בתוך פונקציה מופרדים ב<strong>נקודה-פסיק</strong>, לא בפסיק, והפונקציה חייבת סוגר מסולסלים שסוגר אותה, ואחריו פסיק:
+      <span class="en">onSuccess: () =&gt; { reset(); onDone(); },</span>
+      אצלך חסרים הסוגר הסוגר, ו-<code>onError</code> נכנס בטעות לתוך <code>onSuccess</code>.</li>
+    <li><strong>שורה 30:</strong> <code>keyof RoomFormValues</code> הוא שם מהקובץ הקודם. שני ל-<code>keyof PuzzleFormValues</code>.</li>
+    <li><strong>הסוגרים בסוף</strong> (שורות 35-37): ההנחיות בסעיף "מפת הסוגרים" של ההסבר על <code>onSubmit</code> חלות כאן. אחרי <code>setError("root", ...)</code> בא, כל אחד בשורה משלו: <code>}</code> סוגר את <code>onError</code>; <code>}</code> סוגר את האובייקט השני של <code>mutate</code>; <code>);</code> סוגר את <code>mutate(</code>; ו-<code>}</code> סוגר את <code>function onSubmit</code>. כרגע <code>return</code> (שורה 38) נמצא <strong>בתוך</strong> <code>onSubmit</code> כי הפונקציה לא נסגרה.</li>
+    <li>שורות 23-24 (<code>const { answer, ...rest } = values;</code> ו-<code>const input = answer ? values : rest;</code>) נכונות. ✓</li>
+  </ol>
+
+  <h3>4. השדות בטופס: שורות 41-133 (הבעיה הגדולה)</h3>
+  <div class="note">שדות החדר שהועתקו (<code>name</code>, <code>imageUrl</code>, <code>category</code>, <code>description</code>, <code>timeLimit</code>, <code>difficulty</code>, <code>status</code>, <code>finalText</code>) לא קיימים ב-<code>PuzzleFormValues</code> ולכן ייתן הרבה פסים אדומים ("Argument of type '"name"' is not assignable..."). מחקי את כל אחד מהם (שורות 41-133, חוץ מהכותרת בשורה 40 ומהשגיאה הכללית והכפתור בשורות 134-141) והחליפי בשישה שדות של חידה.</div>
+  <ol class="steps">
+    <li>אותו דפוס בכל שדה: <code>FormField</code> עם <code>label</code>, <code>htmlFor</code> ו-<code>error={errors.NAME?.message}</code>; בתוכו <code>input</code> או <code>textarea</code> עם <code>id</code> ופיזור <code>register("NAME", {כללים})</code>. הטבלה (ה-NAME תמיד תואם ל-<code>htmlFor</code> ול-<code>id</code>):
+      <table>
+        <tr><th>NAME</th><th>label</th><th>תגית</th><th>כללים</th></tr>
+        <tr><td>order</td><td>סדר</td><td>input type="number"</td><td>required, valueAsNumber: true, min 1</td></tr>
+        <tr><td>title</td><td>כותרת</td><td>input type="text"</td><td>required</td></tr>
+        <tr><td>prompt</td><td>השאלה</td><td>textarea</td><td>required</td></tr>
+        <tr><td>hotspotLabel</td><td>שם החפץ</td><td>input type="text"</td><td>required</td></tr>
+        <tr><td>storyText</td><td>קטע סיפור</td><td>textarea</td><td>required</td></tr>
+        <tr><td>answer</td><td>תשובה (בעריכה: ריק = ללא שינוי)</td><td>input type="text"</td><td>required רק בהוספה</td></tr>
+      </table></li>
+    <li><strong>שדה התשובה:</strong> הכלל <code>required</code> תלוי ב-<code>isEdit</code>: אם עריכה אין כלל (<code>false</code>), אחרת הודעה:
+      <span class="en">{...register("answer", { required: isEdit ? false : "חובה להזין תשובה" })}</span></li>
+    <li>המשתנה <code>imageUrl</code> (שורה 63) לא קיים כאן; מחקי את תצוגת התמונה יחד עם השדה.</li>
+  </ol>
+
+  <h3>5. סוף הקובץ (שורות 143-145)</h3>
+  <ol class="steps">
+    <li>אחרי <code>&lt;/form&gt;</code> ו-<code>)</code> של ה-<code>return</code> בא סוגר מסולסלים אחד שסוגר את <code>PuzzleForm</code>. כרגע יש שניים (שורה 145). מחקי אחד.</li>
+  </ol>
+
+  <h3>בדיקה לפני "בדוק" (מה למחוק אחרי שהעתקת)</h3>
+  <ul>
+    <li>אין בקובץ אף מופע של <code>name</code>/<code>imageUrl</code>/<code>category</code>/<code>description</code>/<code>timeLimit</code>/<code>difficulty</code>/<code>status</code>/<code>finalText</code>/<code>RoomFormValues</code>.</li>
+    <li>ייבואים: <code>useForm</code>, <code>ApiError</code>, <code>useSavePuzzle</code>, <code>FormField</code>, ו-<code>import type { Puzzle }</code>. אין <code>register</code> מ-api/auth.</li>
+    <li>כל משתנה שמופיע בפירוק של <code>useForm</code> בשימוש (<code>register</code>, <code>handleSubmit</code>, <code>setError</code>, <code>reset</code>, <code>errors</code>), אחרת "never used".</li>
+  </ul>
+  <div class="ok">כתבי "בדוק" אחרי התיקונים. אם הלכת לאיבוד באמצע, מחקי את כל הקובץ והתחילי מהצעדים בהדרכה "קובץ 1: components/PuzzleForm.tsx".</div>
+</section>
+
+<section class="answer quick" id="deploy-existing-db">
+  <h2>פריסה עם המסד הקיים ב-Render (מעודכן)</h2>
+  <div class="ok"><strong>tsc: 0 שגיאות</strong> (היו 1, נשארו 0), ובניית הלקוח (<code>npm run build</code>) עוברת. סימנתי את AdminPuzzlesPage ב-<code>PLAN.md</code>.</div>
+  <h3>בדיקת מנהלת מול השרת (עברה, והנתונים נמחקו אחרי)</h3>
+  <ol class="steps">
+    <li>מנהלת יוצרת חדר (201), מעדכנת אותו (סטטוס "פורסם"), רואה גם טיוטות ברשימה.</li>
+    <li>יצירת חידה (201) ללא שדה <code>answer</code> בתשובה. מספר סידורי כפול → 409. עריכה בלי תשובה → 200. תשובה ריקה → 400.</li>
+    <li>שחקנית שמנסה ליצור חידה או לערוך חדר → 403. בלי התחברות → 401.</li>
+  </ol>
+  <h3>המסד הקיים</h3>
+  <div class="note">מסד חינמי אחד לכל חשבון, לכן משתמשים בקיים. כדי שהטבלאות לא יתנגשו בפרויקט הקודם, מוסיפים לכתובת החיבור בסוף <code>?schema=escapezone</code>. בדקתי מקומית: Prisma יוצר את כל הטבלאות בסכמה נפרדת בלי לגעת בקיימות. <code>render.yaml</code> עודכן (בלי יצירת מסד חדש) ונדחף ל-GitHub.</div>
+  <ol class="steps">
+    <li>ב-Render פתחי את המסד הקיים, בלשונית Connections העתיקי את <strong>Internal Database URL</strong> (אם השרת והמסד באותו אזור; אחרת External).</li>
+    <li>הוסיפי בסוף הכתובת: <code>?schema=escapezone</code></li>
+    <li>New ← Blueprint ← בחרי את <code>escapezone</code>. ב-<code>escapezone-api</code> הדביקי את הכתובת הזו ב-<code>DATABASE_URL</code>. מלאי גם <code>SEED_ADMIN_EMAIL</code> ו-<code>SEED_ADMIN_PASSWORD</code> (סיסמה 8 תווים לפחות, שמרי אותה).</li>
+    <li>אחרי שנוצרו שתי הכתובות: ב-API הגדירי <code>CLIENT_ORIGIN</code> (כתובת הלקוח, בלי / בסוף), וב-Client הגדירי <code>VITE_API_URL</code> (כתובת ה-API ועוד <code>/api</code>). שמרי; Render בונה מחדש.</li>
+    <li>שלחי לי את שתי הכתובות ואבדוק מולן.</li>
+  </ol>
+</section>
+
 </body>
 </html>

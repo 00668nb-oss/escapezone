@@ -1,11 +1,7 @@
-# פריסה ב-Render (Blueprint): מסד נתונים + Server (API) + Client (אתר סטטי).
+# פריסה ב-Render (Blueprint): Server (API) + Client (אתר סטטי).
+# מסד הנתונים קיים כבר ב-Render (מסד חינמי אחד לכל חשבון). מדביקים את כתובת החיבור ב-DATABASE_URL
+# ומוסיפים בסופה ?schema=escapezone כדי שהטבלאות יישבו בסכמה נפרדת ולא יתנגשו בפרויקט הקודם.
 # שלב 1: ליצור Blueprint מה-Repository. שלב 2: למלא את המשתנים שמסומנים "sync: false".
-databases:
-  - name: escapezone-db
-    plan: free
-    databaseName: escapezone
-    user: escapezone
-
 services:
   - type: web
     name: escapezone-api
@@ -19,9 +15,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: escapezone-db
-          property: connectionString
+        sync: false # Internal/External Database URL של המסד הקיים + ?schema=escapezone בסוף
       - key: JWT_SECRET
         generateValue: true # Render מייצר סוד אקראי
       - key: JWT_EXPIRES_IN
