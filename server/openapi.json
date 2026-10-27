@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "ESCAPEVERSE API",
+    "title": "EscapeZone API",
     "version": "1.0.0",
     "description": "API של חדרי בריחה דיגיטליים.\n\n**איך מתחברים ב-Swagger:** בצעי `POST /auth/login`, העתיקי את ה-`token` מהתשובה, לחצי **Authorize** והדביקי אותו."
   },
@@ -591,6 +591,7 @@
               "enum": [
                 "name",
                 "difficulty",
+                "category",
                 "timeLimit",
                 "createdAt"
               ],

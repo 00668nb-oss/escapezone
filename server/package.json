@@ -1,5 +1,5 @@
 {
-  "name": "escapeverse-server",
+  "name": "escapezone-server",
   "version": "1.0.0",
   "main": "dist/src/server.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "openapi": "tsx scripts/export-openapi.ts",
-    "render-build": "npm ci --include=dev && npm run build && prisma migrate deploy"
+    "render-build": "npm ci --include=dev && npm run build && prisma migrate deploy && npm run db:seed"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

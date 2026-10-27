@@ -1,4 +1,4 @@
-# ESCAPEVERSE – Server
+# EscapeZone – Server
 
 Express + TypeScript (strict) + PostgreSQL + Prisma + Zod + JWT + Swagger + Vitest.
 

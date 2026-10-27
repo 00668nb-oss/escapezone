@@ -1,4 +1,4 @@
-# PLAN – ESCAPEVERSE
+# PLAN – EscapeZone
 
 סימון: `[ ]` לא התחיל · `[~]` בעבודה · `[x]` הושלם.
 סדר עבודה: קודם דרישות, אחר כך עיצוב וסיפור.
@@ -24,38 +24,38 @@
 
 ## שלב 2 – לקוח: תשתית (היא כותבת)
 
-- [ ] `client/.env` עם `VITE_API_URL=http://localhost:4000/api`
-- [ ] `types/index.ts`: User, Room, Puzzle, Progress, RoomInput, PuzzleInput, RoomFilters (איחודי מחרוזות ל-difficulty/status/role)
-- [ ] `api/client.ts`: fetch כללי – base URL, Header של Token, זריקת שגיאה עם status/error/details
-- [ ] `api/auth.ts`, `api/rooms.ts`, `api/puzzles.ts`, `api/progress.ts`: פונקציה לכל endpoint
-- [ ] `context/AuthContext.tsx`: user/token/isLoading, login/logout, localStorage, שחזור ע"י `GET /auth/me`, Hook `useAuth`
-- [ ] `QueryClientProvider` ב-`main.tsx` + קבוע מפתחות queries
-- [ ] `hooks/`: useRooms, useRoom, useRoomPuzzles, useProgress, useAllProgress, useStory
-- [ ] `hooks/`: mutations – useLogin, useRegister, useStartRoom, useSubmitAnswer, useSaveRoom, useSavePuzzle
-- [ ] קומפוננטות משותפות: Loading, ErrorMessage, FormField
-- [ ] Layout + Navbar (קישור ניהול רק למנהלת, שם + התנתקות)
-- [ ] `ProtectedRoute` עם prop `role` (Loading → login → הפניה לפי תפקיד)
-- [ ] Routing: `/`, `/login`, `/register`, `/rooms`, `/rooms/:id`, `/rooms/:id/finish`, `/admin`, `/admin/rooms/new`, `/admin/rooms/:id/edit`, `/admin/rooms/:id/puzzles`, `*`
-- [ ] בדיקה: רענון שומר התחברות; שחקנית ב-`/admin` מופנית החוצה
+- [x] `client/.env` עם `VITE_API_URL=http://localhost:4000/api`
+- [x] `types/index.ts`: User, Room, Puzzle, Progress, RoomInput, PuzzleInput, RoomFilters (איחודי מחרוזות ל-difficulty/status/role)
+- [x] `api/client.ts`: fetch כללי – base URL, Header של Token, זריקת שגיאה עם status/error/details
+- [x] `api/auth.ts`, `api/rooms.ts`, `api/puzzles.ts`, `api/progress.ts`: פונקציה לכל endpoint
+- [x] `context/AuthContext.tsx`: user/token/isLoading, login/logout, localStorage, שחזור ע"י `GET /auth/me`, Hook `useAuth`
+- [x] `QueryClientProvider` ב-`main.tsx` + קבוע מפתחות queries
+- [x] `hooks/`: useRooms, useRoom, useRoomPuzzles, useProgress, useAllProgress, useStory
+- [x] `hooks/`: mutations – useLogin, useRegister, useStartRoom, useSubmitAnswer, useSaveRoom, useSavePuzzle
+- [x] קומפוננטות משותפות: Loading, ErrorMessage, FormField
+- [x] Layout + Navbar (קישור ניהול רק למנהלת, שם + התנתקות)
+- [x] `ProtectedRoute` עם prop `role` (Loading → login → הפניה לפי תפקיד)
+- [x] Routing: `/`, `/login`, `/register`, `/rooms`, `/rooms/:id`, `/rooms/:id/finish`, `/admin`, `/admin/rooms/new`, `/admin/rooms/:id/edit`, `/admin/rooms/:id/puzzles`, `*`
+- [ ] בדיקה (אחרי LoginPage, שלב 3): רענון שומר התחברות; שחקנית ב-`/admin` מופנית החוצה
 
 ## שלב 3 – לקוח: שחקנית
 
-- [ ] `LoginPage` + `RegisterPage`: useForm + Validation, `setError` מ-`details` של השרת, כפתור מושבת בזמן שליחה
-- [ ] `RoomFilters`: חיפוש, קטגוריה, קושי, מיון (props בלבד)
-- [ ] `RoomCard`: תמונה, שם, קושי, קטגוריה, זמן, תג "הושלם"
-- [ ] `RoomsPage`: פילטרים ב-URL (`useSearchParams`) → queryKey → רענון אוטומטי
-- [ ] `RoomPage`: טעינת חדר+חידות+התקדמות, מסך פתיחה עם כפתור "היכנסי לחדר" (start)
-- [ ] `HotspotButton` ×3 מעל התמונה, סימון ✓ לחידה שנפתרה, פס התקדמות
-- [ ] `PuzzlePanel`: טופס תשובה, נכון/לא נכון, invalidate ל-puzzles+progress → הצגת storyText
-- [ ] מעבר למסך סיום כש-`progress.status === completed`
-- [ ] `FinishPage`: `useStory`, טיפול ב-403
+- [x] `LoginPage` + `RegisterPage`: useForm + Validation, `setError` מ-`details` של השרת, כפתור מושבת בזמן שליחה
+- [x] `RoomFiltersBar` (קובץ components/RoomFiltersBar.tsx; לא RoomFilters, כדי לא להתנגש בשם הטיפוס): חיפוש, קטגוריה, קושי, מיון (props בלבד)
+- [x] `constants/labels.ts` (difficultyLabels) + `RoomCard`: תמונה, שם, קושי, קטגוריה, זמן, תג "הושלם"
+- [x] `RoomsPage`: פילטרים ב-URL (`useSearchParams`) → queryKey → רענון אוטומטי
+- [x] `RoomPage`: טעינת חדר+חידות+התקדמות, מסך פתיחה עם כפתור "היכנסי לחדר" (start)
+- [x] `HotspotButton` ×3 מעל התמונה, סימון ✓ לחידה שנפתרה, פס התקדמות
+- [x] `PuzzlePanel`: טופס תשובה, נכון/לא נכון, invalidate ל-puzzles+progress → הצגת storyText
+- [x] מעבר למסך סיום כש-`progress.status === completed`
+- [x] `FinishPage`: `useStory`, טיפול ב-403
 
 ## שלב 4 – לקוח: מנהלת
 
-- [ ] `AdminRoomsPage`: כל החדרים + סינון status, קישורי עריכה/חידות, "חדר חדש"
-- [ ] `RoomFormPage`: אותו טופס להוספה ועריכה (`reset` בעריכה), Validation, תצוגת תמונה, invalidate + ניווט
+- [x] `AdminRoomsPage`: כל החדרים + סינון status, קישורי עריכה/חידות, "חדר חדש"
+- [x] `RoomFormPage`: אותו טופס להוספה ועריכה (`reset` בעריכה), Validation, תצוגת תמונה, invalidate + ניווט
 - [ ] `AdminPuzzlesPage` + `PuzzleForm`: הוספה/עריכה; בעריכה `answer` אופציונלי (ריק = לא לשנות); 409 על order
-- [ ] הוספת שני החדרים הנוספים דרך המסך: "החדר שבו הזמן עצר", "החממה הסודית" (3 חידות כל אחד, published)
+- [ ] (אחרי ההגשה הראשונה; כרגע מספיק חדר אחד) הוספת שני החדרים הנוספים דרך המסך (היא מזינה): "החדר שבו הזמן עצר", "החממה הסודית" (3 חידות כל אחד, published)
 
 ## שלב 5 – לוטש וסיפור
 

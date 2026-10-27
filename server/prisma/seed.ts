@@ -65,7 +65,7 @@ async function main() {
       data: {
         name: 'הספרייה הנעלמת',
         description: 'ספרייה עתיקה שבה כל הספרים נעלמו בלילה אחד. פתרי שלוש חידות וגלי מה קרה.',
-        imageUrl: '/images/library.jpg',
+        imageUrl: '/images/library.svg',
         difficulty: 'easy',
         category: 'מסתורין',
         timeLimit: 20,

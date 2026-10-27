@@ -54,7 +54,7 @@
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  text-align: right;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -108,4 +108,316 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Layout + Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.navbar a {
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.navbar a.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.navbar-brand {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.navbar-links,
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-user {
+  margin-inline-start: auto;
+}
+
+.main {
+  flex: 1;
+  padding: 24px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Shared components */
+[role='status'] {
+  padding: 24px;
+  text-align: center;
+}
+
+[role='alert'] {
+  color: #c0392b;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+  background: var(--bg);
+}
+
+.field-error {
+  font-size: 14px;
+}
+
+/* RoomFiltersBar */
+.room-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+.room-filters .form-field {
+  flex: 1 1 10rem;
+  margin-bottom: 0;
+}
+
+/* RoomCard */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.25rem;
+}
+.room-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.room-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.room-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.room-card-body {
+  padding: 0.75rem 1rem 1rem;
+}
+.room-card-body h3 {
+  margin: 0 0 0.4rem;
+}
+.room-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+.room-card-badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: #2e7d32;
+  color: #fff;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+/* RoomsPage */
+.rooms-empty {
+  text-align: center;
+  color: #666;
+  padding: 2rem 0;
+}
+
+/* RoomPage */
+.room-hero {
+  display: grid;
+  gap: 1rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+.room-hero img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.room-hero .room-card-meta {
+  font-size: 1rem;
+}
+.room-progress {
+  color: #555;
+}
+
+/* HotspotButton */
+.room-scene {
+  position: relative;
+}
+.hotspot {
+  position: absolute;
+  padding: 0.4rem 0.9rem;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: rgba(107, 78, 255, 0.9);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  animation: hotspot-pulse 2s infinite;
+}
+.hotspot.hotspot-solved {
+  background: rgba(46, 125, 50, 0.92);
+  animation: none;
+}
+.hotspot-0 {
+  top: 25%;
+  right: 20%;
+}
+.hotspot-1 {
+  top: 55%;
+  right: 55%;
+}
+.hotspot-2 {
+  top: 70%;
+  right: 15%;
+}
+@keyframes hotspot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.room-hero progress {
+  width: 100%;
+  height: 1rem;
+}
+
+/* PuzzlePanel + FinishPage */
+.puzzle-panel {
+  background: #fff;
+  border: 2px solid #6b4eff;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+.puzzle-panel h2 {
+  margin-top: 0;
+}
+.story-text,
+.final-text {
+  background: #fff8e1;
+  border-right: 5px solid #f5a623;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  line-height: 1.8;
+}
+.finish-page {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+.finish-page .final-text {
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+/* Admin */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.admin-toolbar .form-field {
+  margin-bottom: 0;
+  min-width: 12rem;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.admin-table th,
+.admin-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem 0.75rem;
+  text-align: right;
+}
+.admin-table th {
+  background: #efeaff;
+}
+.admin-table td:last-child {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.admin-form {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+.admin-form textarea {
+  min-height: 6rem;
+}
+.image-preview {
+  width: 100%;
+  max-height: 14rem;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+@media (max-width: 600px) {
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Admin puzzles */
+.admin-puzzle-form {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 2px solid #6b4eff;
+  border-radius: 12px;
+}
+.admin-table button {
+  cursor: pointer;
 }

@@ -21,6 +21,6 @@ export const roomQuerySchema = z.object({
   category: z.string().trim().optional(),
   difficulty: difficulty.optional(),
   status: status.optional(),
-  sort: z.enum(['name', 'difficulty', 'timeLimit', 'createdAt']).default('createdAt'),
+  sort: z.enum(['name', 'difficulty', 'category', 'timeLimit', 'createdAt']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
 });

@@ -5,7 +5,6 @@ export type User = {
   name: string;
   email: string;
   role: Role;
-  createdAt: string;
 };
 
 export type Difficulty = "easy" | "medium" | "hard";
@@ -42,7 +41,7 @@ export type ProgressStatus = "not_started" | "in_progress" | "completed";
 export type Progress = {
   roomId: number;
   status: ProgressStatus;
-  solvedPuzzleIDs: number[];
+  solvedPuzzleIds: number[];
   startedAt: string | null;
   completedAt: string | null;
 };
@@ -72,12 +71,40 @@ export type RoomFilters = {
   difficulty?: Difficulty;
   category?: string;
   status?: Status;
-  sort?:
-    | "name"
-    | "difficulty"
-    | "category"
-    | "status"
-    | "createdAt"
-    | "updatedAt";
+  sort?: "name" | "difficulty" | "category" | "createdAt" | "timeLimit";
   order?: "asc" | "desc";
+};
+
+export type FieldError = {
+  field: string;
+  message: string;
+};
+
+export type AuthResponse = {
+  token: string;
+  user: User;
+};
+
+export type StoryPuzzle = {
+  id: number;
+  title: string;
+  storyText: string | null;
+};
+
+export type Story = {
+  roomName: string;
+  puzzles: StoryPuzzle[];
+  finalText: string | null;
+};
+
+export type AnswerResult = {
+  correct: boolean;
+};
+
+export type ContextType = {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  login: (response: AuthResponse) => void;
+  logout: () => void;
 };

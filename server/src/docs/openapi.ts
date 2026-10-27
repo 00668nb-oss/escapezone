@@ -121,7 +121,7 @@ const arr = (schema: Json) => ({ type: 'array', items: schema });
 export const openapi = {
   openapi: '3.0.3',
   info: {
-    title: 'ESCAPEVERSE API',
+    title: 'EscapeZone API',
     version: '1.0.0',
     description:
       'API של חדרי בריחה דיגיטליים.\n\n**איך מתחברים ב-Swagger:** בצעי `POST /auth/login`, העתיקי את ה-`token` מהתשובה, לחצי **Authorize** והדביקי אותו.',
@@ -279,7 +279,7 @@ export const openapi = {
           { name: 'category', in: 'query', schema: { type: 'string' } },
           { name: 'difficulty', in: 'query', schema: { type: 'string', enum: ['easy', 'medium', 'hard'] } },
           { name: 'status', in: 'query', schema: { type: 'string', enum: ['draft', 'published', 'archived'] }, description: 'משפיע רק למנהלת' },
-          { name: 'sort', in: 'query', schema: { type: 'string', enum: ['name', 'difficulty', 'timeLimit', 'createdAt'], default: 'createdAt' } },
+          { name: 'sort', in: 'query', schema: { type: 'string', enum: ['name', 'difficulty', 'category', 'timeLimit', 'createdAt'], default: 'createdAt' } },
           { name: 'order', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'], default: 'desc' } },
         ],
         response: { schema: arr(ref('Room')), example: [roomExample] },

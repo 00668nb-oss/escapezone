@@ -1,8 +1,14 @@
-# פריסת ה-Server ב-Render מתוך ה-Repository (תיקיית server).
-# מסד הנתונים נפרד: PostgreSQL חינמי מכל ספק (למשל Supabase / Neon / Render Postgres).
+# פריסה ב-Render (Blueprint): מסד נתונים + Server (API) + Client (אתר סטטי).
+# שלב 1: ליצור Blueprint מה-Repository. שלב 2: למלא את המשתנים שמסומנים "sync: false".
+databases:
+  - name: escapezone-db
+    plan: free
+    databaseName: escapezone
+    user: escapezone
+
 services:
   - type: web
-    name: escapeverse-api
+    name: escapezone-api
     runtime: node
     rootDir: server
     plan: free
@@ -13,14 +19,34 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false # מדביקים ידנית ב-Render (Connection String של ה-PostgreSQL)
+        fromDatabase:
+          name: escapezone-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true # Render מייצר סוד אקראי
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: CLIENT_ORIGIN
-        sync: false # כתובת ה-Client, למשל https://my-app.onrender.com
+        sync: false # כתובת אתר ה-Client, למשל https://escapezone-client.onrender.com (בלי / בסוף)
       - key: SEED_ADMIN_EMAIL
         sync: false
       - key: SEED_ADMIN_PASSWORD
         sync: false
+      - key: SEED_PLAYER_EMAIL
+        sync: false
+      - key: SEED_PLAYER_PASSWORD
+        sync: false
+
+  - type: web
+    name: escapezone-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite # ניתוב React Router: כל כתובת מחזירה את index.html
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false # כתובת ה-API כולל /api, למשל https://escapezone-api.onrender.com/api

@@ -63,7 +63,7 @@
 | `GET /progress/:roomId` | מחוברת | – | Progress (`not_started` אם עוד לא התחילה) |
 | `GET /rooms/:id/story` | מחוברת | – | `{roomName, puzzles:[{id,title,storyText}], finalText}` – 403 לפני השלמה |
 
-**Query של `GET /rooms`**: `search` (שם/תיאור), `category`, `difficulty`, `status` (למנהלת בלבד), `sort` = `name|difficulty|timeLimit|createdAt` (ברירת מחדל `createdAt`), `order` = `asc|desc`. דוגמה: `/rooms?search=ספרייה&difficulty=easy&sort=timeLimit&order=asc`.
+**Query של `GET /rooms`**: `search` (שם/תיאור), `category`, `difficulty`, `status` (למנהלת בלבד), `sort` = `name|difficulty|category|timeLimit|createdAt` (ברירת מחדל `createdAt`), `order` = `asc|desc`. דוגמה: `/rooms?search=ספרייה&difficulty=easy&sort=timeLimit&order=asc`.
 שחקנית ואורחת רואות רק חדרים `published`. מנהלת (עם Token) רואה הכול.
 
 ## שדות חובה בטפסים (השרת מאמת, כדאי לאמת גם בלקוח)
