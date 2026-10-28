@@ -155,7 +155,7 @@ body {
 }
 @media (min-width: 900px) {
   .scene-viewport {
-    height: calc(100svh - 65px);
+    height: calc(100svh - 85px);
     margin-top: -28px;
     margin-bottom: -48px;
   }
@@ -164,7 +164,7 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: max(100%, calc((100svh - 65px) * var(--aspect)));
+    width: max(100%, calc((100svh - 85px) * var(--aspect)));
   }
 }
 

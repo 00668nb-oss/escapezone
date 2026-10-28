@@ -30,7 +30,7 @@ export function NavBar() {
       }}
     >
       <Toolbar
-        sx={{ gap: 2, flexWrap: "wrap", maxWidth: 1100, width: "100%", mx: "auto" }}
+        sx={{ gap: 2, flexWrap: "wrap", maxWidth: 1100, width: "100%", mx: "auto", minHeight: { md: 84 } }}
       >
         <Typography
           component={RouterLink}
@@ -41,11 +41,11 @@ export function NavBar() {
             gap: 1.2,
             fontFamily: "var(--heading)",
             fontWeight: 700,
-            fontSize: "1.1rem",
-            letterSpacing: "0.3em",
+            fontSize: { xs: "1.25rem", md: "1.9rem" },
+            letterSpacing: { xs: "0.18em", md: "0.24em" },
             color: "text.primary",
             textDecoration: "none",
-            "&::before": { content: '""', width: 8, height: 8, bgcolor: "#9b2226" },
+            "&::before": { content: '""', width: { xs: 10, md: 16 }, height: { xs: 10, md: 16 }, bgcolor: "#9b2226" },
           }}
         >
           ESCAPEZONE
