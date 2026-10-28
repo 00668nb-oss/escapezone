@@ -31,6 +31,7 @@ export function RoomScene({
   // יחס התמונה נקרא מהתמונה עצמה, כך שכל תמונה (לא רק 16:9) מוצגת נכון
   const [aspect, setAspect] = useState(4 / 3);
 
+  const viewportStyle = { "--bg": `url(${imageUrl})` } as CSSProperties;
   const stageStyle = { "--aspect": aspect, aspectRatio: `${aspect}` } as CSSProperties;
   const zoomStyle = {
     transform: `scale(${zoom})`,
@@ -39,7 +40,7 @@ export function RoomScene({
   } as CSSProperties;
 
   return (
-    <Box className="scene-viewport">
+    <Box className="scene-viewport" style={viewportStyle}>
       <Box className="scene-stage" style={stageStyle}>
         <Box className="camera-drift" sx={{ position: "absolute", inset: 0 }}>
           <Box

@@ -149,6 +149,13 @@ body {
   margin-inline-start: calc(50% - 50vw);
   background: #000;
 }
+.scene-viewport::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background: var(--bg) center / cover;
+  filter: blur(28px) brightness(0.45);
+}
 .scene-stage {
   position: relative;
   width: 100%;
@@ -159,12 +166,13 @@ body {
     margin-top: -28px;
     margin-bottom: -48px;
   }
+  /* התמונה ממלאת את המסך, אבל חותכים לכל היותר כ-13% מהגובה. מה שנשאר בצדדים מתמלא ברקע מטושטש */
   .scene-stage {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: max(100%, calc((100svh - 85px) * var(--aspect)));
+    width: min(100%, calc((100svh - 85px) * var(--aspect) * 1.15));
   }
 }
 

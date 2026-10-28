@@ -269,6 +269,20 @@ describe('puzzles', () => {
   });
 });
 
+describe('מחיקת חדר', () => {
+  it('DELETE חדר: מנהלת מוחקת (עם החידות), שחקנית 403, חדר לא קיים 404', async () => {
+    const room = await createRoomWithPuzzles();
+    expect((await api().delete(`/api/rooms/${room.id}`).set(bearer(playerToken))).status).toBe(403);
+    expect((await api().delete(`/api/rooms/${room.id}`)).status).toBe(401);
+    const res = await api().delete(`/api/rooms/${room.id}`).set(bearer(adminToken));
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(await prisma.room.count({ where: { id: room.id } })).toBe(0);
+    expect(await prisma.puzzle.count({ where: { roomId: room.id } })).toBe(0);
+    expect((await api().delete(`/api/rooms/${room.id}`).set(bearer(adminToken))).status).toBe(404);
+  });
+});
+
 describe('מחיקת חידה', () => {
   it('DELETE חידה: מנהלת מוחקת (201 לא נדרש), שחקנית 403, חידה לא קיימת 404', async () => {
     const room = await createRoomWithPuzzles();

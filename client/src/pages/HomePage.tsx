@@ -21,7 +21,7 @@ export function HomePage() {
         className="hero-full"
         style={{
           backgroundImage:
-            "linear-gradient(270deg, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.25) 65%, rgba(9, 9, 10, 0.5)), linear-gradient(0deg, #09090a, transparent 35%), url(/images/zero-office.jpg)",
+            "linear-gradient(270deg, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.25) 65%, rgba(9, 9, 10, 0.5)), linear-gradient(0deg, #09090a, transparent 35%), url(/images/zero-office-2.jpg)",
         }}
       >
         <Box className="hero-inner">

@@ -298,6 +298,17 @@ export const openapi = {
       }),
     },
     '/rooms/{id}': {
+      delete: op({
+        tag: 'Rooms',
+        summary: 'מחיקת חדר (גם החידות וההתקדמות של השחקנים נמחקות)',
+        access: 'admin',
+        parameters: [idParam('id', 'מזהה החדר')],
+        response: {
+          schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+          example: { ok: true },
+        },
+        extraErrors: notFoundErr('החדר'),
+      }),
       get: op({
         tag: 'Rooms',
         summary: 'פרטי חדר',

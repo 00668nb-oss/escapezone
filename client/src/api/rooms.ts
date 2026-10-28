@@ -32,6 +32,10 @@ export function updateRoom(
   return fetchData(`/rooms/${id}`, "PUT", input);
 }
 
+export function deleteRoom(id: number): Promise<{ ok: boolean }> {
+  return fetchData(`/rooms/${id}`, "DELETE");
+}
+
 export function getStory(id: number): Promise<Story> {
   return fetchData(`/rooms/${id}/story`, "GET");
 }

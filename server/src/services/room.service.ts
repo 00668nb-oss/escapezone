@@ -47,3 +47,11 @@ export async function createRoom(data: z.infer<typeof roomBodySchema>) {
 export async function updateRoom(id: number, data: z.infer<typeof roomUpdateSchema>) {
   return toDto(await prisma.room.update({ where: { id }, data, include: withCount }));
 }
+
+// מחיקת חדר: החידות וההתקדמות של השחקנים נמחקות איתו (onDelete: Cascade בסכמה)
+export async function deleteRoom(id: number) {
+  const room = await prisma.room.findUnique({ where: { id }, select: { id: true } });
+  if (!room) throw notFound('החדר');
+  await prisma.room.delete({ where: { id } });
+  return { ok: true };
+}

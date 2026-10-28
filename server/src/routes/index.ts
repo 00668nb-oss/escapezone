@@ -22,6 +22,7 @@ router.get('/rooms', optionalAuth, room.list);
 router.get('/rooms/:id', optionalAuth, room.getOne);
 router.post('/rooms', ...admin, room.create);
 router.put('/rooms/:id', ...admin, room.update);
+router.delete('/rooms/:id', ...admin, room.remove);
 
 router.get('/rooms/:id/puzzles', requireAuth, puzzle.listForRoom);
 router.post('/rooms/:id/puzzles', ...admin, puzzle.create);

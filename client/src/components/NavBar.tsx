@@ -1,6 +1,7 @@
 import { Link as RouterLink, NavLink, useNavigate } from "react-router-dom";
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
+import { KeyIcon } from "./KeyIcon";
 
 // קישור בתפריט: כשהוא פעיל מקבל class בשם active מ-NavLink, ומודגש בנחושת
 const activeLinkSx = {
@@ -45,9 +46,9 @@ export function NavBar() {
             letterSpacing: { xs: "0.18em", md: "0.24em" },
             color: "text.primary",
             textDecoration: "none",
-            "&::before": { content: '""', width: { xs: 10, md: 16 }, height: { xs: 10, md: 16 }, bgcolor: "#9b2226" },
           }}
         >
+          <KeyIcon />
           ESCAPEZONE
         </Typography>
         <Button component={NavLink} to="/rooms" color="inherit" sx={activeLinkSx}>

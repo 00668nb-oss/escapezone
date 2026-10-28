@@ -20,3 +20,7 @@ export async function create(req: Request, res: Response) {
 export async function update(req: Request, res: Response) {
   res.json(await roomService.updateRoom(parseId(req.params.id), roomUpdateSchema.parse(req.body)));
 }
+
+export async function remove(req: Request, res: Response) {
+  res.json(await roomService.deleteRoom(parseId(req.params.id)));
+}

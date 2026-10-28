@@ -774,6 +774,105 @@
       }
     },
     "/rooms/{id}": {
+      "delete": {
+        "tags": [
+          "Rooms"
+        ],
+        "summary": "מחיקת חדר (גם החידות וההתקדמות של השחקנים נמחקות)",
+        "description": "מחיקת חדר (גם החידות וההתקדמות של השחקנים נמחקות)\n\n**הרשאה:** דורש Token של מנהלת (admin) בלבד.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                },
+                "example": {
+                  "ok": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "אין הרשאה (נדרשת מנהלת)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "אין לך הרשאה לפעולה זו"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "tags": [
           "Rooms"

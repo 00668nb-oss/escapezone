@@ -1,14 +1,20 @@
 import { useState } from "react";
-import type { Status } from "../types";
+import type { Room, Status } from "../types";
+import { useDeleteRoom } from "../hooks/useDeleteRoom";
 import { useRooms } from "../hooks/useRooms";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { Link } from "react-router-dom";
 import { Loading } from "../components/Loading";
 import { difficultyLabels, statusLabels } from "../constants/labels";
 import {
+  Alert,
   Box,
   Button,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Paper,
   Table,
   TableBody,
@@ -22,6 +28,9 @@ import {
 
 export function AdminRoomsPage() {
   const [status, setStatus] = useState<Status | "">("");
+  // החדר שמבקשים למחוק (מציג חלון אישור)
+  const [deleting, setDeleting] = useState<Room | null>(null);
+  const remove = useDeleteRoom();
 
   const {
     data: rooms,
@@ -101,6 +110,9 @@ export function AdminRoomsPage() {
                     <Button component={Link} to={`/admin/rooms/${room.id}/puzzles`} size="small">
                       חידות
                     </Button>
+                    <Button size="small" color="error" onClick={() => setDeleting(room)}>
+                      מחיקה
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -108,6 +120,36 @@ export function AdminRoomsPage() {
           </Table>
         </TableContainer>
       )}
+      <Dialog open={deleting !== null} onClose={() => setDeleting(null)}>
+        <DialogTitle>מחיקת חדר</DialogTitle>
+        <DialogContent>
+          <Typography>
+            למחוק את החדר "{deleting?.name}"? הפעולה אינה הפיכה: גם כל החידות שלו וההתקדמות
+            של השחקנים בו יימחקו.
+          </Typography>
+          {remove.error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {remove.error.message}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button color="inherit" onClick={() => setDeleting(null)}>
+            ביטול
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            disabled={remove.isPending}
+            onClick={() =>
+              deleting &&
+              remove.mutate(deleting.id, { onSuccess: () => setDeleting(null) })
+            }
+          >
+            מחיקה
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

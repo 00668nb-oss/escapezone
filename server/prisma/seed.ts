@@ -74,7 +74,7 @@ const rooms = [
     name: 'תיק ZERO: החקירה האחרונה',
     description:
       'לפני 17 שנים נעלם החוקר דניאל רז, בזמן שחקר את ZERO – מערכת שמשחזרת אירועים מהעבר. הודעה אנונימית הביאה אתכם למשרד הנטוש שלו. הדלת ננעלה מאחוריכם, מסך ישן נדלק, ומערכת בשם ECHO מכריזה: "פרוטוקול נעילה הופעל. זמן למחיקת הארכיון: 14:59." גלו מה קרה לדניאל לפני שהזמן נגמר.',
-    imageUrl: '/images/zero-office.jpg',
+    imageUrl: '/images/zero-office-2.jpg',
     difficulty: 'medium' as const,
     category: 'בלשי',
     timeLimit: 15,
