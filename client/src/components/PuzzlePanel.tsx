@@ -44,6 +44,8 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
   const [wrongAttempts, setWrongAttempts] = useState(0);
   // הרמז מוצג רק אחרי שמבקשים אותו
   const [showHint, setShowHint] = useState(false);
+  // אחרי תשובה נכונה עוברים מיד למסך ההצלחה, בלי לחכות שהנתונים יתרעננו מהשרת
+  const [justSolved, setJustSolved] = useState(false);
 
   function onSubmit(values: AnswerFormValues) {
     const answer = puzzle.codeLength ? digits.join("") : values.answer;
@@ -51,7 +53,9 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
       { id: puzzle.id, answer },
       {
         onSuccess: (result) => {
-          if (!result.correct) {
+          if (result.correct) {
+            setJustSolved(true);
+          } else {
             setError("answer", { message: "תשובה שגויה, נסו שוב" });
             setWrongAttempts((count) => count + 1);
           }
@@ -70,7 +74,7 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
     </Typography>
   );
 
-  if (puzzle.solved) {
+  if (puzzle.solved || justSolved) {
     return (
       <ThemeProvider theme={paperTheme}>
         <Dialog
@@ -88,7 +92,9 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
             <Alert severity="success" className="pop" sx={{ mb: 2 }}>
               הראיה נפתרה
             </Alert>
-            <Typography className="story-text">{puzzle.storyText}</Typography>
+            <Typography className="story-text">
+              {puzzle.storyText ?? "טוענים את קטע הסיפור..."}
+            </Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={onClose}>סגירה</Button>
