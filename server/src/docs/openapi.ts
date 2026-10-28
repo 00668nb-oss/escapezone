@@ -354,6 +354,17 @@ export const openapi = {
       }),
     },
     '/puzzles/{id}': {
+      delete: op({
+        tag: 'Puzzles',
+        summary: 'מחיקת חידה',
+        access: 'admin',
+        parameters: [idParam('id', 'מזהה החידה')],
+        response: {
+          schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+          example: { ok: true },
+        },
+        extraErrors: notFoundErr('החידה', true),
+      }),
       put: op({
         tag: 'Puzzles',
         summary: 'עריכת חידה (אפשר לשלוח רק חלק מהשדות)',

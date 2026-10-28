@@ -16,6 +16,10 @@ export async function update(req: Request, res: Response) {
   res.json(await puzzleService.updatePuzzle(parseId(req.params.id), puzzleUpdateSchema.parse(req.body)));
 }
 
+export async function remove(req: Request, res: Response) {
+  res.json(await puzzleService.deletePuzzle(parseId(req.params.id)));
+}
+
 export async function answer(req: Request, res: Response) {
   const { answer: text } = answerSchema.parse(req.body);
   res.json(await puzzleService.checkAnswer(parseId(req.params.id), currentUser(req), text));

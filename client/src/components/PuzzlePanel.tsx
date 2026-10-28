@@ -127,6 +127,21 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
                   צריכים רמז?
                 </Button>
               ))}
+            {isPending && (
+              <Alert severity="info" icon={false} sx={{ mb: 2 }}>
+                בודקים את התשובה... אם השרת היה רדום, זה יכול לקחת עד דקה.
+              </Alert>
+            )}
+            {errors.root && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {errors.root.message}
+              </Alert>
+            )}
+            {puzzle.codeLength && errors.answer && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {errors.answer.message}
+              </Alert>
+            )}
             {puzzle.codeLength ? (
               <>
                 <CodeLock
@@ -136,9 +151,6 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
                     clearErrors("answer"); // השדה לא רשום ב-React Hook Form, לכן מנקים את השגיאה ידנית
                   }}
                 />
-                {errors.answer && (
-                  <Alert severity="error">{errors.answer.message}</Alert>
-                )}
               </>
             ) : (
               <FormTextField
@@ -149,18 +161,13 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
               />
             )}
           </Box>
-          {errors.root && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {errors.root.message}
-            </Alert>
-          )}
         </DialogContent>
         <DialogActions>
           <Button color="inherit" onClick={onClose} disabled={isPending}>
             ביטול
           </Button>
           <Button type="submit" variant="contained" disabled={isPending}>
-            {puzzle.codeLength ? "פתיחת המנעול" : "שליחה"}
+            {isPending ? "בודקים..." : puzzle.codeLength ? "פתיחת המנעול" : "שליחה"}
           </Button>
         </DialogActions>
       </Dialog>

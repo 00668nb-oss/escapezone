@@ -19,6 +19,10 @@ export function updatePuzzle(
   return fetchData(`/puzzles/${id}`, "PUT", input);
 }
 
+export function deletePuzzle(id: number): Promise<{ ok: boolean }> {
+  return fetchData(`/puzzles/${id}`, "DELETE");
+}
+
 export function submitAnswer(
   id: number,
   answer: string,

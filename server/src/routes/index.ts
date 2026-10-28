@@ -27,6 +27,7 @@ router.get('/rooms/:id/puzzles', requireAuth, puzzle.listForRoom);
 router.post('/rooms/:id/puzzles', ...admin, puzzle.create);
 router.get('/rooms/:id/story', requireAuth, progress.story);
 router.put('/puzzles/:id', ...admin, puzzle.update);
+router.delete('/puzzles/:id', ...admin, puzzle.remove);
 router.post('/puzzles/:id/answer', requireAuth, puzzle.answer);
 
 router.get('/progress', requireAuth, progress.list);

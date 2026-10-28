@@ -269,6 +269,20 @@ describe('puzzles', () => {
   });
 });
 
+describe('מחיקת חידה', () => {
+  it('DELETE חידה: מנהלת מוחקת (201 לא נדרש), שחקנית 403, חידה לא קיימת 404', async () => {
+    const room = await createRoomWithPuzzles();
+    const puzzle = room.puzzles[0]!;
+    expect((await api().delete(`/api/puzzles/${puzzle.id}`).set(bearer(playerToken))).status).toBe(403);
+    expect((await api().delete(`/api/puzzles/${puzzle.id}`)).status).toBe(401);
+    const res = await api().delete(`/api/puzzles/${puzzle.id}`).set(bearer(adminToken));
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(await prisma.puzzle.count({ where: { id: puzzle.id } })).toBe(0);
+    expect((await api().delete(`/api/puzzles/${puzzle.id}`).set(bearer(adminToken))).status).toBe(404);
+  });
+});
+
 describe('answers + progress', () => {
   it('תשובה בלי Token → 401', async () => {
     const room = await createRoomWithPuzzles();

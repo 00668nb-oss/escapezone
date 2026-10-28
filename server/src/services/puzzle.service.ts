@@ -63,6 +63,14 @@ export async function updatePuzzle(id: number, data: z.infer<typeof puzzleUpdate
   return prisma.puzzle.update({ where: { id }, data, select: publicSelect });
 }
 
+// מחיקת חידה (גם התקדמות השחקנים בה נמחקת, כי SolvedPuzzle נמחק איתה)
+export async function deletePuzzle(id: number) {
+  const puzzle = await prisma.puzzle.findUnique({ where: { id }, select: { id: true } });
+  if (!puzzle) throw notFound('החידה', true);
+  await prisma.puzzle.delete({ where: { id } });
+  return { ok: true };
+}
+
 export async function checkAnswer(puzzleId: number, actor: Actor, answer: string) {
   const puzzle = await prisma.puzzle.findUnique({
     where: { id: puzzleId },
