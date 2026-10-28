@@ -5,3 +5,8 @@ dist
 !.env.example
 !.env.test.example
 *.log
+
+# קבצי עבודה אישיים (לא עולים ל-Git ולא ל-Render)
+CLAUDE.md
+PLAN.md
+claude-answers.html
