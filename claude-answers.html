@@ -4479,5 +4479,252 @@ export function NavBar() {
   </ol>
 </section>
 
+<section class="answer quick" id="render-steps">
+  <h2>הוראות: להעלות את EscapeZone ל-Render (צעד אחר צעד)</h2>
+  <div class="note"><strong>מה נעשה:</strong> Render יקרא את הקובץ <code>render.yaml</code> מהריפו ב-GitHub, ויבנה לך שני שירותים: <strong>שרת</strong> (<code>escapezone-api</code>) ו<strong>אתר הלקוח</strong> (<code>escapezone-client</code>). את המסד משתמשים בקיים (מגירה חדשה בשם <code>escapezone</code>, ראו סעיף 2). בסוף יהיו לך שתי כתובות להגשה, ובנוסף כתובת ה-GitHub.</div>
+
+  <h3>סעיף 1: חיבור הריפו</h3>
+  <p>את נמצאת במסך "Create a new Blueprint Instance". ב-"Connect a repository" רואים רק <code>city-tickets-client</code> ו-<code>city-tickets-server</code>. הריפו <code>escapezone</code> עוד לא מופיע כי ל-Render אין הרשאה אליו. שתי דרכים:</p>
+  <ol class="steps">
+    <li><strong>דרך מהירה (הריפו ציבורי):</strong> גללי למטה במסך עד לשדה "Public Git Repository URL". הדביקי בו:
+      <span class="en">https://github.com/00668nb-oss/escapezone</span>
+      לחצי Continue.</li>
+    <li><strong>דרך קבועה:</strong> בצד ימין, מתחת ל-<code>@00668nb-oss</code>, לחצי "Configure account". יפתח GitHub. בקטע "Repository access" בחרי "Only select repositories", הוסיפי את <code>escapezone</code>, ולחצי Save. חזרי ל-Render ורענני (F5). <code>escapezone</code> יופיע ברשימה, ולחצי לידו Connect.</li>
+  </ol>
+
+  <h3>סעיף 2: איפה מוצאים את כתובת המסד</h3>
+  <ol class="steps">
+    <li>פתחי לשונית נוספת בדפדפן ובה את Render Dashboard (<code>dashboard.render.com</code>).</li>
+    <li>בצד שמאל לחצי על המסד של הפרויקט הקודם (שם עם אייקון של מסד נתונים, מסוג PostgreSQL).</li>
+    <li>גללי לקטע <strong>Connections</strong>. יש שם שלוש כתובות. העתיקי את <strong>Internal Database URL</strong> (לחצי על אייקון ההעתקה). היא נראית בערך כך:
+      <span class="en">postgresql://user:password@dpg-xxxx-a/dbname</span></li>
+    <li>הדביקי אותה בפנקס רשימות, והוסיפי <strong>בסוף</strong> (בלי רווח):
+      <span class="en">?schema=escapezone</span>
+      התוצאה:
+      <span class="en">postgresql://user:password@dpg-xxxx-a/dbname?schema=escapezone</span></li>
+    <li>למה: <code>?schema=escapezone</code> אומר "תיצור את הטבלאות במגירה נפרדת בשם escapezone", וכך הפרויקט הישן לא נפגע.</li>
+  </ol>
+  <div class="warn">אם הכתובת כבר מכילה <code>?</code> באמצע, הוסיפי <code>&amp;schema=escapezone</code> במקום <code>?schema=escapezone</code>.</div>
+
+  <h3>סעיף 3: המסך שאחרי החיבור (Blueprint)</h3>
+  <p>Render יציג שני שירותים: <code>escapezone-api</code> ו-<code>escapezone-client</code>, ושדות להשלמה (משתני סביבה). מלאי כך:</p>
+  <table>
+    <tr><th>שדה</th><th>מה כותבים</th></tr>
+    <tr><td><code>DATABASE_URL</code></td><td>הכתובת המלאה מסעיף 2, כולל <code>?schema=escapezone</code>.</td></tr>
+    <tr><td><code>SEED_ADMIN_EMAIL</code></td><td>המייל של המנהלת, למשל <code>admin@escapezone.com</code> (לא חייב להיות אמיתי). זכרי אותו.</td></tr>
+    <tr><td><code>SEED_ADMIN_PASSWORD</code></td><td>סיסמה של 8 תווים לפחות. <strong>שמרי אותה במקום בטוח</strong>, כי בזכותה תיכנסי כמנהלת.</td></tr>
+    <tr><td><code>SEED_PLAYER_EMAIL</code></td><td>מייל של שחקנית לבדיקה, למשל <code>player@escapezone.com</code>.</td></tr>
+    <tr><td><code>SEED_PLAYER_PASSWORD</code></td><td>סיסמה של 8 תווים לפחות לשחקנית הבדיקה.</td></tr>
+    <tr><td><code>CLIENT_ORIGIN</code></td><td>עוד לא ידוע. כתבי זמנית: <code>https://temp.onrender.com</code> (נתקן בסעיף 5).</td></tr>
+    <tr><td><code>VITE_API_URL</code></td><td>עוד לא ידוע. כתבי זמנית: <code>https://temp.onrender.com/api</code> (נתקן בסעיף 5).</td></tr>
+  </table>
+  <p>את שאר השדות (<code>NODE_ENV</code>, <code>JWT_SECRET</code> ועוד) Render ממלא לבד. לחצי <strong>Apply</strong> (או Deploy Blueprint).</p>
+
+  <h3>סעיף 4: ההמתנה לבנייה (5-10 דקות)</h3>
+  <ol class="steps">
+    <li>Render בונה את שני השירותים. פתחי כל אחד ולחצי "Logs" כדי לראות מה קורה.</li>
+    <li><strong>השרת (escapezone-api)</strong> הצליח כשבלוג מופיע <code>Seed הסתיים</code> ובהמשך <code>Server on</code>, ובראש העמוד הסטטוס "Live".</li>
+    <li><strong>הלקוח (escapezone-client)</strong> הצליח כשבלוג מופיע <code>built in</code> והסטטוס "Live".</li>
+    <li>בראש העמוד של כל שירות מופיעה הכתובת שלו (<code>https://….onrender.com</code>). העתיקי את שתיהן. השם עשוי לכלול סיומת אקראית אם השם תפוס.</li>
+  </ol>
+
+  <h3>סעיף 5: תיקון שתי הכתובות (חובה)</h3>
+  <p>בסעיף 3 הכנסנו כתובות זמניות. עכשיו שיש כתובות אמיתיות, מחליפים:</p>
+  <ol class="steps">
+    <li><strong>בשרת:</strong> פתחי את <code>escapezone-api</code> ← לשונית <strong>Environment</strong> ← שני את <code>CLIENT_ORIGIN</code> לכתובת <strong>הלקוח</strong>. בלי <code>/</code> בסוף! נכון: <code>https://escapezone-client.onrender.com</code>. שגוי: <code>https://escapezone-client.onrender.com/</code>. לחצי Save changes (השרת יעלה מחדש לבד).</li>
+    <li><strong>בלקוח:</strong> פתחי את <code>escapezone-client</code> ← <strong>Environment</strong> ← שני את <code>VITE_API_URL</code> לכתובת <strong>השרת</strong> ועוד <code>/api</code> בסוף: <code>https://escapezone-api.onrender.com/api</code>. לחצי Save changes. הלקוח נבנה מחדש (חשוב: הכתובת נאפית בתוך הקוד בזמן הבנייה, ולכן חייבים בנייה חדשה). אם Render לא התחיל לבנות, לחצי Manual Deploy ← Deploy latest commit.</li>
+    <li>חכי שגם השרת וגם הלקוח יחזרו לסטטוס "Live".</li>
+  </ol>
+
+  <h3>סעיף 6: בדיקה שהכול עובד</h3>
+  <ol class="steps">
+    <li>פתחי בדפדפן את כתובת השרת ועוד <code>/api/health</code>. אמורה להופיע הודעה קצרה של תקינות. (בפעם הראשונה זה לוקח כדקה כי השרת החינמי "מתעורר".)</li>
+    <li>פתחי את כתובת הלקוח. אמור להופיע האתר.</li>
+    <li>היכנסי עם המייל והסיסמה של המנהלת (מסעיף 3). בתפריט אמור להופיע "ניהול".</li>
+    <li>ב-"חדרים" אמור להופיע "הספרייה הנעלמת" עם תמונה. כנסי, התחילי, פתרי חידה (התשובות: אש, 15, 12) וראי את מסך הסיום.</li>
+    <li>רעננו את הדף באמצע (F5) ובדקי שלא מופיעה שגיאה 404 ושאת עדיין מחוברת.</li>
+  </ol>
+
+  <h3>אם משהו לא עובד</h3>
+  <table>
+    <tr><th>סימפטום</th><th>סיבה סבירה</th><th>מה עושים</th></tr>
+    <tr><td>בנייה של השרת נכשלת בשלב <code>prisma migrate deploy</code> / "Can't reach database server"</td><td>הכתובת הפנימית לא נגישה (המסד והשרת באזורים שונים), או שהועתקה לא נכון.</td><td>העתיקי במקום זה את <strong>External Database URL</strong> והוסיפי בסוף <code>?sslmode=require&amp;schema=escapezone</code>. עדכני ב-DATABASE_URL ולחצי Manual Deploy.</td></tr>
+    <tr><td>שגיאה "P3005" / "schema is not empty"</td><td>חסר <code>?schema=escapezone</code> בסוף הכתובת, והמיגרציה ניסתה לרוץ על הסכמה של הפרויקט הישן.</td><td>הוסיפי את הסיומת ל-DATABASE_URL (בלי לגעת בטבלאות הישנות) ובנו מחדש.</td></tr>
+    <tr><td>באתר: שגיאת רשת/"Failed to fetch" בהתחברות</td><td><code>VITE_API_URL</code> שגוי, חסר בו <code>/api</code>, או שהלקוח לא נבנה מחדש אחרי השינוי.</td><td>תקני את הערך ועשי Manual Deploy ללקוח.</td></tr>
+    <tr><td>בקונסולה של הדפדפן (F12): "blocked by CORS policy"</td><td><code>CLIENT_ORIGIN</code> בשרת לא תואם בדיוק לכתובת הלקוח (למשל / בסוף או http במקום https).</td><td>תקני בשרת ל-<code>https://…onrender.com</code> בלי / בסוף. Save.</td></tr>
+    <tr><td>כניסת מנהלת נכשלת</td><td>מייל/סיסמה שונים ממה שהוזן ב-<code>SEED_ADMIN_*</code>.</td><td>עדכני את שני המשתנים בשרת ולחצי Manual Deploy: הזריעה תעדכן את הסיסמה.</td></tr>
+    <tr><td>העמוד נטען לאט מאוד בפעם הראשונה</td><td>השרת החינמי נרדם אחרי 15 דקות בלי תנועה.</td><td>רגיל. המתיני כדקה. כדאי לפתוח אותו כמה דקות לפני שבודקים.</td></tr>
+  </table>
+
+  <h3>מה מגישים</h3>
+  <ol class="steps">
+    <li>קישור ל-Git: <code>https://github.com/00668nb-oss/escapezone</code></li>
+    <li>קישור לאתר (הלקוח): הכתובת של <code>escapezone-client</code>.</li>
+    <li>קישור לשרת: הכתובת של <code>escapezone-api</code> (אפשר להוסיף <code>/api-docs</code> לתיעוד Swagger).</li>
+  </ol>
+  <div class="ok">אחרי שסיימת, שלחי לי את שתי הכתובות ואבדוק מולן: כניסה, חדרים, פתרון חידה, והרשאות. אם נתקעת בשלב כלשהו, צלמי לי את המסך ואגיד מה לעשות.</div>
+</section>
+
+<section class="answer quick" id="ux-start">
+  <h2>שלב השיפורים: חוויית משתמש (התחלה)</h2>
+  <div class="ok"><strong>עיצוב חדש כבר מותקן</strong> (כתבתי אותו ב-<code>index.css</code> וב-<code>index.html</code>, בלי שום שינוי בקוד שלך). הצבתי ערכת נושא כהה ומסתורית: רקע סגול-כהה, צבע זהב לדגשים, כרטיסים עם אפקט ריחוף, חפצים זוהרים מעל תמונת החדר, פס התקדמות צבעוני, טפסים עם מסגרת במיקוד, ותצוגה מותאמת לנייד. צילמתי מסכים בדפדפן כדי לוודא שהכול נראה טוב (חדרים, חדר, כניסה, גם בנייד).</div>
+  <div class="note"><strong>רשימת השיפורים</strong> נמצאת ב-<code>PLAN.md</code> בשלב 7, לפי סדר חשיבות. אנחנו מתחילים בדף הבית: הוא עדיין מציג "HomePage (זמני)", וזה הדבר הראשון שהמורה רואה.</div>
+
+  <h3>משימה: pages/HomePage.tsx (דף הבית)</h3>
+  <p><strong>מה זה:</strong> עמוד הכניסה של האתר: כותרת גדולה, משפט הסבר, כפתורים (שונים למי שמחוברת ולמי שלא), וכרטיסי "איך זה עובד" בשלושה צעדים. את ה-CSS (גרדיאנט בכותרת, כפתורים, כרטיסים) כבר כתבתי.</p>
+
+  <h4>מושגים שמופיעים כאן</h4>
+  <table>
+    <tr><th>מושג</th><th>הסבר</th></tr>
+    <tr><td>מערך של אובייקטים מחוץ לקומפוננטה</td><td>את שלושת הצעדים לא כותבים שלוש פעמים ב-JSX (זה שכפול קוד). שומרים אותם ברשימה אחת, ומציירים אותם בלולאה (<code>map</code>). הרשימה נמצאת <strong>מעל</strong> הקומפוננטה, כי היא קבועה ולא צריכה להיווצר מחדש בכל ציור.</td></tr>
+    <tr><td><code>map((step, index) =&gt; ...)</code></td><td><code>map</code> עוברת על כל איבר ברשימה ובונה מכל אחד תגית. הפרמטר הראשון הוא האיבר (<code>step</code>), והשני הוא המספר הסידורי שלו, שמתחיל ב-0 (<code>index</code>).</td></tr>
+    <tr><td><code>user ? A : B</code></td><td>"אם יש משתמשת מחוברת, הצג A, אחרת הצג B". <code>user</code> מגיע מ-<code>useAuth()</code> והוא <code>null</code> אם אף אחת לא מחוברת (כבר השתמשת בזה ב-NavBar).</td></tr>
+  </table>
+
+  <h4>על מה נשענים</h4>
+  <table>
+    <tr><th>שם</th><th>קובץ</th><th>מה בפועל</th></tr>
+    <tr><td><code>useAuth()</code></td><td>context/AuthContext</td><td>מחזיר אובייקט; משתמשים ב-<code>user</code> (User או null).</td></tr>
+    <tr><td><code>Link</code></td><td>react-router-dom</td><td>קישור בלי טעינת דף מחדש. מקבל <code>to</code> ו-<code>className</code>.</td></tr>
+  </table>
+
+  <h4>ייבואים (2 שורות)</h4>
+  <ol class="steps">
+    <li>הקישור. ייבוא רגיל בסוגריים מסולסלים (כי <code>Link</code> הוא שם אחד מתוך החבילה):
+      <span class="en">import { Link } from "react-router-dom";</span></li>
+    <li>ה-Hook שאומר מי מחוברת:
+      <span class="en">import { useAuth } from "../context/AuthContext";</span></li>
+  </ol>
+
+  <h4>הכנת רשימת הצעדים (מעל הקומפוננטה, אחרי הייבואים)</h4>
+  <ol class="steps">
+    <li><strong>פתחי רשימה.</strong> <code>const</code> מגדיר משתנה שלא ישתנה, <code>steps</code> הוא השם, והסוגריים המרובעים <code>[ ]</code> אומרים "רשימה". זו שורה אחת שנסגרת בסוף הרשימה עם <code>];</code>:
+      <span class="en">const steps = [</span></li>
+    <li><strong>איבר ראשון.</strong> כל איבר הוא אובייקט: סוגריים מסולסלים עם שני שדות, <code>title</code> ו-<code>text</code>. כל שדה בצורה <code>שם: "טקסט"</code>, ופסיק בין השדות ופסיק אחרי הסוגר הסוגר של האובייקט:
+      <span class="en">{ title: "בחרו חדר", text: "בחרו תעלומה לפי רמת קושי וקטגוריה." },</span></li>
+    <li><strong>איבר שני:</strong> <code>title</code> "מצאו וחקרו", <code>text</code> "לחצו על החפצים בתמונה ופתרו את החידה של כל אחד."</li>
+    <li><strong>איבר שלישי:</strong> <code>title</code> "ברחו", <code>text</code> "כל חידה חושפת קטע סיפור. פתרו את שלושתן וגלו מה קרה."</li>
+    <li>סגרי את הרשימה:
+      <span class="en">];</span></li>
+  </ol>
+
+  <h4>הקומפוננטה</h4>
+  <ol class="steps">
+    <li><strong>פתיחה.</strong> <code>export</code> = "אפשר לייבא את זה מקובץ אחר" (<code>App.tsx</code> כבר מייבא אותו). מחקי את הקוד הזמני הקיים:
+      <span class="en">export function HomePage() {</span></li>
+    <li><strong>מי מחוברת.</strong> הסוגריים המסולסלים אומרים "קחי מתוך האובייקט רק את השדה user":
+      <span class="en">const { user } = useAuth();</span></li>
+    <li><strong>ה-return.</strong> פתחי <code>return (</code> וסוגר עגול, ובתוכו <code>div</code> עוטף עם <code>className="home"</code>.</li>
+    <li><strong>אזור הפתיחה:</strong> תגית <code>section</code> עם <code>className="hero"</code>. בתוכה, לפי הסדר:
+      <span class="en">&lt;h1&gt;הדלת נעולה. הסיפור מחכה.&lt;/h1&gt;</span>
+      <span class="en">&lt;p&gt;חדרי בריחה דיגיטליים: מצאו חפצים, פתרו חידות וגלו מה באמת קרה.&lt;/p&gt;</span></li>
+    <li><strong>אזור הכפתורים:</strong> <code>div</code> עם <code>className="hero-actions"</code>. בתוכו ביטוי בסוגריים מסולסלים (כי זו לוגיקה בתוך JSX). מבנה: <code>user</code>, סימן שאלה, סוגריים עגולים עם מה להציג למחוברת, נקודותיים, סוגריים עגולים עם מה להציג לשאר:
+      <span class="en">{user ? ( A ) : ( B )}</span></li>
+    <li><strong>A (למחוברת):</strong> קישור אחד, שמקבל את שני המאפיינים ואת הטקסט:
+      <span class="en">&lt;Link to="/rooms" className="btn"&gt;לחדרים&lt;/Link&gt;</span></li>
+    <li><strong>B (למי שלא מחוברת):</strong> שני קישורים, ולכן חייבים לעטוף בתגית ריקה <code>&lt;&gt;</code> ... <code>&lt;/&gt;</code> (מעטפת בלי תוצאה בעמוד, כי בתוך סוגריים עגולים מותרת תגית אחת בלבד). בתוכה:
+      <span class="en">&lt;Link to="/register" className="btn"&gt;הרשמה&lt;/Link&gt;</span>
+      <span class="en">&lt;Link to="/login" className="btn btn-secondary"&gt;התחברות&lt;/Link&gt;</span>
+      <small>שני שמות המחלקות מופרדים ברווח בתוך אותו <code>className</code>: זה מה שנותן לכפתור השני מראה מסגרת בלי מילוי.</small></li>
+    <li>סגרי את <code>div</code> של <code>hero-actions</code> ואת <code>section</code> של <code>hero</code>.</li>
+    <li><strong>אזור "איך זה עובד":</strong> עוד <code>section</code> (בלי className). בתוכו <code>h2</code> עם הטקסט "איך זה עובד?", ואחריו <code>div</code> עם <code>className="steps-grid"</code>.</li>
+    <li><strong>הלולאה.</strong> בתוך ה-<code>div</code> של <code>steps-grid</code> ביטוי <code>map</code> על <code>steps</code>. הפרמטר הראשון נקרא <code>step</code> והשני <code>index</code>:
+      <span class="en">{steps.map((step, index) =&gt; ( … ))}</span>
+      <small>הסימנים <code>…</code> מוחלפים בשלב הבא.</small></li>
+    <li><strong>הכרטיס:</strong> בתוך הסוגריים העגולים של <code>map</code>, <code>div</code> אחד עם שני מאפיינים: <code>key</code> (תווית ייחודית שדורש React לכל איבר ברשימה, כאן <code>step.title</code>) ו-<code>className="step-card"</code>:
+      <span class="en">&lt;div key={step.title} className="step-card"&gt;</span></li>
+    <li><strong>בתוך הכרטיס שלוש תגיות:</strong> המספר (אינדקס + 1, כי האינדקס מתחיל מ-0), הכותרת והטקסט:
+      <span class="en">&lt;span className="step-number"&gt;{index + 1}&lt;/span&gt;</span>
+      <span class="en">&lt;h3&gt;{step.title}&lt;/h3&gt;</span>
+      <span class="en">&lt;p&gt;{step.text}&lt;/p&gt;</span></li>
+    <li><strong>סגירות בסדר הפוך:</strong> <code>&lt;/div&gt;</code> של הכרטיס, סוגר עגול של ה-<code>map</code>, סוגר מסולסלים של הביטוי, <code>&lt;/div&gt;</code> של <code>steps-grid</code>, <code>&lt;/section&gt;</code>, <code>&lt;/div&gt;</code> של <code>home</code>, סוגר עגול של ה-<code>return</code> ונקודה-פסיק, וסוגר מסולסלים אחרון של הפונקציה.</li>
+  </ol>
+
+  <h4>טעויות ש-tsc לא תופס</h4>
+  <ul>
+    <li>שכחת <code>key</code> על הכרטיס: אזהרה בקונסולה של הדפדפן (F12), לא פס אדום.</li>
+    <li>כתבת <code>&lt;/&gt;</code> בלי שפתחת <code>&lt;&gt;</code> (או להפך): "JSX fragment has no corresponding closing tag".</li>
+    <li>שני <code>Link</code> זה לצד זה בלי מעטפת <code>&lt;&gt;</code> בתוך <code>? ( ... )</code>: "JSX expressions must have one parent element".</li>
+    <li><code>index</code> בלי <code>+ 1</code>: הכרטיסים יהיו ממוספרים 0, 1, 2.</li>
+  </ul>
+  <h4>שגיאות tsc סבירות</h4>
+  <table>
+    <tr><th>הודעה</th><th>משמעות</th></tr>
+    <tr><td>Cannot find name 'useAuth'</td><td>חסר הייבוא (או שגיאה בנתיב).</td></tr>
+    <tr><td>'index' is declared but its value is never read</td><td>הגדרת את <code>index</code> אבל לא השתמשת בו בתוך הכרטיס.</td></tr>
+    <tr><td>Property 'title' does not exist on type</td><td>שם שדה שונה ברשימה לעומת הכרטיס (למשל <code>name</code> במקום <code>title</code>).</td></tr>
+  </table>
+
+  <h4>מה תראי במסך אחרי שזה עובד</h4>
+  <p>בכתובת <code>/</code>: כותרת גדולה בגרדיאנט לבן-זהב במרכז, משפט הסבר, ושני כפתורים (הרשמה סגול והתחברות עם מסגרת זהב). אם את מחוברת: כפתור אחד "לחדרים". מתחת: "איך זה עובד?" ושלושה כרטיסים עם עיגול זהב ומספר.</p>
+  <div class="ok">כתבי "בדוק" כשסיימת. אחרי זה: משוב בפתרון חידה (הודעת "נכון!" ואנימציה). בינתיים לא עשיתי push, כדי שלא תהיה פריסה מיותרת. כשנסיים כמה שיפורים, נעלה ביחד.</div>
+</section>
+
+<section class="answer quick" id="mui-explained">
+  <h2>הסבר: איך עובד קוד ה-MUI בפרויקט (כדי שתוכלי להסביר למורה)</h2>
+  <div class="note"><strong>MUI</strong> היא ספרייה של רכיבים מוכנים (כפתור, כרטיס, חלון, טבלה, שדה טקסט). במקום לכתוב <code>&lt;button&gt;</code> ולעצב אותו ב-CSS, כותבים <code>&lt;Button&gt;</code> והעיצוב כבר בפנים. העיצוב הכללי (צבעים, גופן, פינות עגולות) מוגדר במקום אחד: <code>theme.ts</code>. <strong>הלוגיקה שכתבת (Hooks, טפסים, בקשות לשרת) לא השתנתה.</strong> התחלפו רק התגיות שמציירות את המסך.</div>
+
+  <h3>חמישה מושגים שחוזרים בכל הקבצים</h3>
+  <table>
+    <tr><th>מושג</th><th>מה זה</th><th>דוגמה</th></tr>
+    <tr><td><code>sx</code></td><td>מאפיין שמקבל אובייקט עיצוב קצר, במקום קובץ CSS נפרד. הערכים כמו <code>p: 2</code> הם יחידות של 8 פיקסלים.</td><td><code>sx={{ p: 4, mt: 2 }}</code> = ריווח פנימי 32 וחיצוני עליון 16</td></tr>
+    <tr><td><code>variant</code> / <code>color</code></td><td>בחירה של סגנון מוכן.</td><td><code>variant="contained"</code> כפתור מלא; <code>"outlined"</code> עם מסגרת</td></tr>
+    <tr><td><code>component</code></td><td>"תצייר את הרכיב הזה בתור תגית/רכיב אחר". כך כפתור הופך לקישור של React Router.</td><td><code>&lt;Button component={"{Link}"} to="/rooms"&gt;</code></td></tr>
+    <tr><td><code>slotProps</code></td><td>מעבירים הגדרות לחלק פנימי של רכיב (למשל ל-select המקורי שבתוך TextField).</td><td><code>slotProps={"{{ select: { native: true } }}"}</code></td></tr>
+    <tr><td>Theme (ערכת נושא)</td><td>הצבעים והגופן הגלובליים. מוגדר ב-<code>theme.ts</code> ומופעל ב-<code>main.tsx</code> עם <code>ThemeProvider</code>.</td><td><code>color="secondary"</code> = זהב כי כך הגדרנו</td></tr>
+  </table>
+
+  <h3>קובץ אחר קובץ</h3>
+  <table>
+    <tr><th>קובץ</th><th>מה המטרה</th><th>רכיבי MUI</th></tr>
+    <tr><td><code>theme.ts</code></td><td>ערכת הנושא: מצב כהה, צבע ראשי סגול, משני זהב, גופן Heebo, כיוון ימין לשמאל.</td><td><code>createTheme</code></td></tr>
+    <tr><td><code>main.tsx</code></td><td>עוטף את כל האתר: <code>CacheProvider</code> הופך את ה-CSS של MUI לימין-לשמאל, <code>ThemeProvider</code> מפעיל את ערכת הנושא, <code>CssBaseline</code> מאפס עיצוב ברירת מחדל של הדפדפן.</td><td><code>ThemeProvider</code>, <code>CssBaseline</code></td></tr>
+    <tr><td><code>FormTextField.tsx</code></td><td>שדה טקסט שמחובר ל-React Hook Form. מקבל <code>registration</code> (התוצאה של <code>register(...)</code>) ו-<code>errorMessage</code>. פירוק ה-<code>ref</code> החוצה נחוץ כי ל-MUI יש תיבה חיצונית ואת <code>ref</code> צריך לחבר לתיבת הקלט שבפנים (<code>inputRef</code>). כל הטפסים משתמשים בו: אין שכפול קוד.</td><td><code>TextField</code></td></tr>
+    <tr><td><code>NavBar.tsx</code></td><td>סרגל עליון דביק. קישור פעיל מקבל class בשם <code>active</code> מ-<code>NavLink</code> ומצבע זהב.</td><td><code>AppBar</code>, <code>Toolbar</code>, <code>Button</code>, <code>Typography</code></td></tr>
+    <tr><td><code>Loading.tsx</code>, <code>ErrorMessage.tsx</code></td><td>גלגל טעינה והודעת שגיאה (עם כפתור "נסו שוב" אופציונלי).</td><td><code>CircularProgress</code>, <code>Alert</code></td></tr>
+    <tr><td><code>RoomCard.tsx</code></td><td>כרטיס חדר שלחיץ כולו. תג "הושלם" מעל התמונה, וצ'יפים לקושי, קטגוריה וזמן.</td><td><code>Card</code>, <code>CardActionArea</code>, <code>CardMedia</code>, <code>Chip</code></td></tr>
+    <tr><td><code>RoomFiltersBar.tsx</code></td><td>שורת הפילטרים. שדות מבוקרים: הערך מגיע מה-props ו-<code>onChange</code> מדווח למעלה, בדיוק כמו קודם.</td><td><code>TextField</code> (גם עם <code>select</code>)</td></tr>
+    <tr><td><code>HotspotButton.tsx</code></td><td>כפתור חפץ מעל התמונה. מיקומו נקבע ב-CSS לפי מספר החידה (<code>hotspot-0</code> עד <code>hotspot-4</code>). נפתרה: ירוק עם וי.</td><td><code>Button</code></td></tr>
+    <tr><td><code>PuzzlePanel.tsx</code></td><td>החידה נפתחת בחלון קופץ מעל התמונה. הטופס הוא ה-<code>Paper</code> של החלון עצמו. תשובה שגויה: הודעה אדומה מתחת לשדה. נכונה: הודעת הצלחה וקטע הסיפור.</td><td><code>Dialog</code>, <code>DialogTitle</code>, <code>DialogContent</code>, <code>DialogActions</code>, <code>Alert</code></td></tr>
+    <tr><td><code>LoginPage</code>, <code>RegisterPage</code></td><td>כרטיס טופס במרכז. <code>noValidate</code> מבטל את בדיקות הדפדפן, כך שרק הבדיקות של React Hook Form (בעברית) מוצגות.</td><td><code>Paper</code>, <code>Button</code>, <code>Alert</code></td></tr>
+    <tr><td><code>RoomsPage</code>, <code>RoomPage</code>, <code>FinishPage</code>, <code>HomePage</code>, <code>NotFoundPage</code></td><td>פריסה של המסך: <code>Box</code> הוא <code>div</code> שאפשר לעצב עם <code>sx</code>. ב-<code>RoomPage</code> פס ההתקדמות מחושב מכמה חידות נפתרו.</td><td><code>Box</code>, <code>Typography</code>, <code>LinearProgress</code>, <code>Chip</code>, <code>Paper</code></td></tr>
+    <tr><td>דפי הניהול</td><td>טבלאות של חדרים וחידות, וטפסי הוספה ועריכה.</td><td><code>Table</code>, <code>TableRow</code>, <code>TableCell</code>, <code>Paper</code></td></tr>
+  </table>
+
+  <h3>שני תיקונים בקוד שלך שנעשו בדרך</h3>
+  <ol class="steps">
+    <li><strong>טופס עריכת חדר:</strong> השדה "כתובת תמונה" היה מסוג <code>url</code>, והדפדפן סירב לשמור כתובת יחסית כמו <code>/images/library.svg</code>. הסרתי את הסוג.</li>
+    <li><strong>טופס חידה, שדה "סדר":</strong> היה בו כלל אורך מינימלי (שמיועד לטקסט) וחסר <code>valueAsNumber</code>. השרת היה מקבל טקסט במקום מספר. עכשיו: <code>valueAsNumber</code> ומינימום 1.</li>
+  </ol>
+
+  <h3>מה להגיד למורה בשתי שורות</h3>
+  <div class="ok">"השתמשתי בספריית MUI לעיצוב: רכיבים מוכנים (כפתורים, כרטיסים, חלון חידה, טבלאות ושדות טופס) וערכת נושא אחת בקובץ <code>theme.ts</code>. את הטפסים חיברתי ל-React Hook Form דרך רכיב משותף אחד, <code>FormTextField</code>, כדי לא לשכפל קוד."</div>
+</section>
+
+<section class="answer quick" id="game-upgrades">
+  <h2>שדרוג המשחק: מה נוסף ואיפה</h2>
+  <div class="ok">ארבעת השיפורים שבחרת נבנו ונבדקו בדפדפן אמיתי (שעון, הודעות ECHO, מנעול ספרות, חפצים נעולים, אפקטים וסיום חגיגי). tsc נקי, הבנייה עוברת, ו-42 בדיקות השרת עוברות.</div>
+  <table>
+    <tr><th>שיפור</th><th>איפה בקוד</th><th>איך זה עובד</th></tr>
+    <tr><td>שעון עוצר</td><td><code>components/Countdown.tsx</code></td><td>מחשב את הזמן שנשאר מ-<code>startedAt</code> (שהשרת שומר בהתחלת החדר) ועד <code>timeLimit</code>, ומתעדכן כל שנייה (<code>setInterval</code> בתוך <code>useEffect</code>, עם ניקוי ב-<code>return</code>). בחמש הדקות האחרונות הוא אדום. אחרי שהזמן נגמר אפשר להמשיך לשחק.</td></tr>
+    <tr><td>הודעות ECHO</td><td><code>components/EchoMessage.tsx</code> + <code>echoMessages</code> ב-<code>RoomPage</code></td><td>הטקסט מוקלד אות אחרי אות. ההודעה משתנה לפי כמה חידות נפתרו. <code>key</code> על הרכיב מתחיל הקלדה מחדש בכל הודעה חדשה.</td></tr>
+    <tr><td>מנעול ספרות</td><td><code>components/CodeLock.tsx</code> + <code>PuzzlePanel</code> + שדה חדש <code>codeLength</code> בשרת</td><td>אם לחידה יש <code>codeLength</code> (למשל 3), מוצגים 3 גלגלים במקום שדה טקסט, והתשובה נשלחת כספרות מחוברות. המנהלת מגדירה את האורך בטופס החידה (שדה "אורך קוד", אופציונלי).</td></tr>
+    <tr><td>חדר שמתגלה בהדרגה</td><td><code>HotspotButton</code> (prop <code>locked</code>) + <code>RoomPage</code></td><td>רק החפץ של החידה הבאה פתוח, והשאר מסומנים ב-🔒. התמונה מתבהרת עם כל חידה שנפתרת (<code>brightness</code> שגדל) ומהבהבת.</td></tr>
+    <tr><td>אפקטים</td><td><code>index.css</code></td><td>רעד בתשובה שגויה (<code>.shake</code>), הופעת הודעת ההצלחה (<code>.pop</code>), והבהוב אור (<code>.flicker</code>).</td></tr>
+    <tr><td>סיום חגיגי</td><td><code>components/Confetti.tsx</code>, <code>DoorOpen.tsx</code></td><td>קונפטי שנופל ודלת שנפתחת ומאירה, ומתחתיה הסיפור המלא.</td></tr>
+  </table>
+  <div class="note"><strong>שינוי בשרת:</strong> עמודה חדשה <code>codeLength</code> בטבלת החידות (מיגרציה <code>20261028000000_add_code_length</code>). היא תרוץ אוטומטית בפריסה ב-Render. התשובה עצמה עדיין לא חוזרת באף endpoint.</div>
+</section>
+
+<section class="answer quick" id="hint-replay">
+  <h2>רמז, רבע שעה ומשחק מחדש</h2>
+  <ol class="steps">
+    <li><strong>רמז:</strong> לכל חידה יש שדה אופציונלי <code>hint</code> (המנהלת מגדירה אותו בטופס החידה). בחלון החידה מופיע כפתור "💡 צריכים רמז?", והרמז נחשף רק אחרי לחיצה. כתבתי רמזים לכל 6 החידות הקיימות.</li>
+    <li><strong>שעון של רבע שעה:</strong> הזמן של שני החדרים הוא 15 דקות (<code>timeLimit</code> בזריעה). השעון סופר מהרגע שמתחילים את החדר.</li>
+    <li><strong>משחק מחדש:</strong> במסך הסיום יש כפתור "שחקו שוב". הוא קורא ל-<code>POST /progress/:roomId/restart</code>, שמוחק את ההתקדמות הקודמת ומתחיל חדשה, כולל שעון חדש.</li>
+  </ol>
+  <div class="note">בשרת נוספו עמודה חדשה (<code>hint</code>, מיגרציה <code>20261028120000_add_hint</code>), ה-endpoint החדש, ובדיקה אוטומטית. 43 בדיקות השרת עוברות.</div>
+</section>
+
 </body>
 </html>

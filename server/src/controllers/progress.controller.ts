@@ -15,6 +15,10 @@ export async function start(req: Request, res: Response) {
   res.json(await progressService.startRoom(currentUser(req).id, parseId(req.params.roomId)));
 }
 
+export async function restart(req: Request, res: Response) {
+  res.json(await progressService.restartRoom(currentUser(req).id, parseId(req.params.roomId)));
+}
+
 export async function story(req: Request, res: Response) {
   res.json(await progressService.getStory(currentUser(req).id, parseId(req.params.id)));
 }

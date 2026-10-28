@@ -217,6 +217,16 @@
             "type": "string",
             "nullable": true
           },
+          "hint": {
+            "type": "string",
+            "nullable": true,
+            "description": "רמז אופציונלי שהשחקן יכול לבקש"
+          },
+          "codeLength": {
+            "type": "integer",
+            "nullable": true,
+            "description": "אורך קוד ספרות (מנעול); null = תשובת טקסט"
+          },
           "solved": {
             "type": "boolean",
             "description": "רק לשחקנית"
@@ -1603,6 +1613,90 @@
         ],
         "summary": "התחלת חדר (אם כבר התחילה – מחזיר את ההתקדמות הקיימת)",
         "description": "התחלת חדר (אם כבר התחילה – מחזיר את ההתקדמות הקיימת)\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "description": "מזהה החדר",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "הצלחה",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Progress"
+                },
+                "example": {
+                  "roomId": 1,
+                  "status": "in_progress",
+                  "solvedPuzzleIds": [],
+                  "startedAt": "2026-01-01T10:00:00.000Z",
+                  "completedAt": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "נתונים לא תקינים",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נתונים לא תקינים"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "חסר Token או שאינו תקין",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "נדרשת התחברות"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "החדר לא נמצא",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "החדר לא נמצא"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/progress/{roomId}/restart": {
+      "post": {
+        "tags": [
+          "Progress"
+        ],
+        "summary": "משחק מחדש: מוחק את ההתקדמות הקודמת ומתחיל התקדמות חדשה",
+        "description": "משחק מחדש: מוחק את ההתקדמות הקודמת ומתחיל התקדמות חדשה\n\n**הרשאה:** דורש Token (שחקנית או מנהלת).",
         "security": [
           {
             "bearerAuth": []

@@ -32,3 +32,4 @@ router.post('/puzzles/:id/answer', requireAuth, puzzle.answer);
 router.get('/progress', requireAuth, progress.list);
 router.get('/progress/:roomId', requireAuth, progress.getOne);
 router.post('/progress/:roomId/start', requireAuth, progress.start);
+router.post('/progress/:roomId/restart', requireAuth, progress.restart);

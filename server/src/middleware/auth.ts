@@ -19,7 +19,7 @@ async function readUser(req: Request) {
     throw new HttpError(401, 'Token לא תקין או שפג תוקפו');
   }
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true } });
-  if (!user) throw new HttpError(401, 'המשתמשת לא קיימת');
+  if (!user) throw new HttpError(401, 'החשבון לא קיים');
   return user;
 }
 

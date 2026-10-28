@@ -12,3 +12,8 @@ export function getProgress(roomId: number): Promise<Progress> {
 export function startRoom(roomId: number): Promise<Progress> {
   return fetchData(`/progress/${roomId}/start`, "POST");
 }
+
+// משחק מחדש: מוחק את ההתקדמות הקודמת ומתחיל התקדמות חדשה
+export function restartRoom(roomId: number): Promise<Progress> {
+  return fetchData(`/progress/${roomId}/restart`, "POST");
+}

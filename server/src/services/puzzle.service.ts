@@ -15,10 +15,17 @@ const publicSelect = {
   prompt: true,
   hotspotLabel: true,
   storyText: true,
+  hint: true,
+  codeLength: true,
 } as const;
 
-// השוואת תשובות לא תלויה ברווחים ובאותיות גדולות/קטנות
-const normalize = (text: string) => text.trim().toLowerCase().replace(/\s+/g, ' ');
+// השוואת תשובות לא תלויה ברווחים, באותיות גדולות/קטנות, בניקוד ובסימני פיסוק (מקפים, פסיקים, גרשיים)
+const normalize = (text: string) =>
+  text
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[֑-ׇ]/g, '')
+    .replace(/[\s\-_,.'"׳״]/g, '');
 
 async function assertRoomVisible(roomId: number, isAdmin: boolean) {
   const room = await prisma.room.findUnique({ where: { id: roomId }, select: { status: true } });

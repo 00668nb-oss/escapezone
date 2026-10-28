@@ -46,6 +46,17 @@ export async function startRoom(userId: number, roomId: number) {
   return toDto(row);
 }
 
+// משחק מחדש: מוחק את ההתקדמות הקודמת (כולל החידות שנפתרו) ומתחיל התקדמות חדשה
+export async function restartRoom(userId: number, roomId: number) {
+  const room = await prisma.room.findUnique({ where: { id: roomId }, select: { status: true } });
+  if (!room || room.status !== 'published') throw notFound('החדר');
+  const row = await prisma.$transaction(async (tx) => {
+    await tx.progress.deleteMany({ where: { userId, roomId } });
+    return tx.progress.create({ data: { userId, roomId }, include });
+  });
+  return toDto(row);
+}
+
 // הסיפור המלא נחשף רק אחרי שהחדר הושלם
 export async function getStory(userId: number, roomId: number) {
   const progress = await prisma.progress.findUnique({ where: { userId_roomId: { userId, roomId } } });

@@ -1,7 +1,20 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSubmitAnswer } from "../hooks/useSubmitAnswer";
 import type { Puzzle } from "../types";
-import { FormField } from "./FormField";
+import { FormTextField } from "./FormTextField";
+import { CodeLock } from "./CodeLock";
+import { PuzzlePrompt } from "./PuzzlePrompt";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
 
 type AnswerFormValues = { answer: string };
 
@@ -16,16 +29,27 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<AnswerFormValues>();
+  // חידה עם codeLength מציגה מנעול ספרות במקום שדה טקסט
+  const [digits, setDigits] = useState<number[]>(() =>
+    Array(puzzle.codeLength ?? 0).fill(0),
+  );
+  // מספר הניסיונות השגויים: כשהוא משתנה, התוכן מתנער מחדש
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  // הרמז מוצג רק אחרי שמבקשים אותו
+  const [showHint, setShowHint] = useState(false);
 
   function onSubmit(values: AnswerFormValues) {
+    const answer = puzzle.codeLength ? digits.join("") : values.answer;
     mutate(
-      { id: puzzle.id, answer: values.answer },
+      { id: puzzle.id, answer },
       {
         onSuccess: (result) => {
           if (!result.correct) {
-            setError("answer", { message: "תשובה שגויה, נסי שוב" });
+            setError("answer", { message: "תשובה שגויה, נסו שוב" });
+            setWrongAttempts((count) => count + 1);
           }
         },
         onError: (error) => setError("root", { message: error.message }),
@@ -35,44 +59,81 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
 
   if (puzzle.solved) {
     return (
-      <div className="puzzle-panel">
-        <h2>{puzzle.title}</h2>
-        <p className="story-text">{puzzle.storyText}</p>
-        <button type="button" onClick={onClose}>
-          סגירה
-        </button>
-      </div>
+      <Dialog open onClose={onClose} fullWidth maxWidth="sm">
+        <DialogTitle>{puzzle.title}</DialogTitle>
+        <DialogContent>
+          <Alert severity="success" className="pop" sx={{ mb: 2 }}>
+            🎉 כל הכבוד! פתרתם את החידה
+          </Alert>
+          <Typography className="story-text">{puzzle.storyText}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>סגירה</Button>
+        </DialogActions>
+      </Dialog>
     );
   }
 
   return (
-    <div className="puzzle-panel">
-      <h2>{puzzle.title}</h2>
-      <p>{puzzle.prompt}</p>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormField
-          label="התשובה"
-          htmlFor="answer"
-          error={errors.answer?.message}
-        >
-          <input
-            type="text"
-            id="answer"
-            {...register("answer", { required: "חובה להזין תשובה" })}
-          />
-        </FormField>
+    <Dialog
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      slotProps={{
+        paper: { component: "form", onSubmit: handleSubmit(onSubmit) },
+      }}
+    >
+      <DialogTitle>{puzzle.title}</DialogTitle>
+      <DialogContent>
+        <Box key={wrongAttempts} className={wrongAttempts > 0 ? "shake" : undefined}>
+          <PuzzlePrompt text={puzzle.prompt} />
+          {puzzle.hint &&
+            (showHint ? (
+              <Alert severity="info" icon="💡" sx={{ mb: 2 }}>
+                {puzzle.hint}
+              </Alert>
+            ) : (
+              <Button size="small" onClick={() => setShowHint(true)} sx={{ mb: 2 }}>
+                💡 צריכים רמז?
+              </Button>
+            ))}
+          {puzzle.codeLength ? (
+            <>
+              <CodeLock
+                digits={digits}
+                onChange={(next) => {
+                  setDigits(next);
+                  clearErrors("answer"); // השדה לא רשום ב-React Hook Form, לכן מנקים את השגיאה ידנית
+                }}
+              />
+              {errors.answer && (
+                <Alert severity="error">{errors.answer.message}</Alert>
+              )}
+            </>
+          ) : (
+            <FormTextField
+              label="התשובה"
+              autoFocus
+              registration={register("answer", { required: "חובה להזין תשובה" })}
+              errorMessage={errors.answer?.message}
+            />
+          )}
+        </Box>
         {errors.root && (
-          <p role="alert" className="field-error">
+          <Alert severity="error" sx={{ mt: 2 }}>
             {errors.root.message}
-          </p>
+          </Alert>
         )}
-        <button type="submit" disabled={isPending}>
-          שלחי
-        </button>
-        <button type="button" onClick={onClose} disabled={isPending}>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={isPending}>
           ביטול
-        </button>
-      </form>
-    </div>
+        </Button>
+        <Button type="submit" variant="contained" disabled={isPending}>
+          {puzzle.codeLength ? "פתיחת המנעול" : "שליחה"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

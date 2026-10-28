@@ -6,6 +6,7 @@ import { useRooms } from "../hooks/useRooms";
 import type { Difficulty, RoomFilters } from "../types";
 import { useAllProgress } from "../hooks/useAllProgress";
 import { RoomCard } from "../components/RoomCard";
+import { Box, Typography } from "@mui/material";
 
 export function RoomsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,12 +30,24 @@ export function RoomsPage() {
   const { data: progressList } = useAllProgress();
   return (
     <>
-      <h1>חדרי בריחה</h1>
+      <Typography variant="h3" component="h1" gutterBottom>
+        חדרי בריחה
+      </Typography>
       <RoomFiltersBar filters={filters} onChange={handleFiltersChange} />
       {isLoading && <Loading />}
       {error && <ErrorMessage error={error} />}
-      {rooms?.length === 0 && <p className="rooms-empty">לא נמצאו חדרים</p>}
-      <div className="rooms-grid">
+      {rooms?.length === 0 && (
+        <Typography color="text.secondary" sx={{ textAlign: "center", py: 6 }}>
+          לא נמצאו חדרים
+        </Typography>
+      )}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))",
+          gap: 3,
+        }}
+      >
         {rooms?.map((room) => (
           <RoomCard
             key={room.id}
@@ -44,7 +57,7 @@ export function RoomsPage() {
             )}
           />
         ))}
-      </div>
+      </Box>
     </>
   );
 }

@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useRegister } from "../hooks/useRegister";
 import { useForm } from "react-hook-form";
-import { FormField } from "../components/FormField";
 import { ApiError } from "../api/client";
+import { Alert, Button, Paper, Typography } from "@mui/material";
+import { FormTextField } from "../components/FormTextField";
 
 type RegisterFormValues = {
   name: string;
@@ -38,47 +39,42 @@ export function RegisterPage() {
     });
   }
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <h1>הרשמה</h1>
-      <FormField label="שם" htmlFor="name" error={errors.name?.message}>
-        <input
-          type="text"
-          id="name"
-          {...register("name", {
-            required: "חובה להזין שם",
-            minLength: { value: 2, message: "שם קצר מדי" },
-          })}
-        />
-      </FormField>
-      <FormField label="אימייל" htmlFor="email" error={errors.email?.message}>
-        <input
-          type="email"
-          id="email"
-          {...register("email", { required: "חובה להזין אימייל" })}
-        />
-      </FormField>
-      <FormField
-        label="סיסמה"
-        htmlFor="password"
-        error={errors.password?.message}
-      >
-        <input
-          type="password"
-          id="password"
-          {...register("password", {
-            required: "חובה להזין סיסמה",
-            minLength: { value: 8, message: "לפחות 8 תווים" },
-          })}
-        />
-      </FormField>
-      {errors.root && (
-        <p role="alert" className="field-error">
-          {errors.root.message}
-        </p>
-      )}
-      <button type="submit" disabled={isPending}>
+    <Paper
+      component="form"
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{ maxWidth: 420, mx: "auto", mt: 4, p: 4, display: "grid", gap: 2 }}
+    >
+      <Typography variant="h4" component="h1">
         הרשמה
-      </button>
-    </form>
+      </Typography>
+      <FormTextField
+        label="שם"
+        registration={register("name", {
+          required: "חובה להזין שם",
+          minLength: { value: 2, message: "שם קצר מדי" },
+        })}
+        errorMessage={errors.name?.message}
+      />
+      <FormTextField
+        label="אימייל"
+        type="email"
+        registration={register("email", { required: "חובה להזין אימייל" })}
+        errorMessage={errors.email?.message}
+      />
+      <FormTextField
+        label="סיסמה"
+        type="password"
+        registration={register("password", {
+          required: "חובה להזין סיסמה",
+          minLength: { value: 8, message: "לפחות 8 תווים" },
+        })}
+        errorMessage={errors.password?.message}
+      />
+      {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
+      <Button type="submit" variant="contained" size="large" disabled={isPending}>
+        {isPending ? "נרשמים..." : "הרשמה"}
+      </Button>
+    </Paper>
   );
 }

@@ -1,23 +1,36 @@
+import { Button } from "@mui/material";
+
 type HotspotButtonProps = {
   label: string;
   position: number;
   solved: boolean;
+  locked: boolean; // נעול עד שפותרים את החידה הקודמת
   onClick: () => void;
 };
 export function HotspotButton({
   label,
   position,
   solved,
+  locked,
   onClick,
 }: HotspotButtonProps) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="contained"
+      color={solved ? "success" : "secondary"}
       onClick={onClick}
-      className={`hotspot hotspot-${position} ${solved ? "hotspot-solved" : ""}`}
+      disabled={locked}
+      className={`hotspot hotspot-${position}${locked ? " hotspot-locked" : ""}`}
+      sx={{ position: "absolute", borderRadius: 999 }}
     >
-      {solved && "✓ "}
-      {label}
-    </button>
+      {locked ? (
+        "🔒"
+      ) : (
+        <>
+          {solved && "✓ "}
+          {label}
+        </>
+      )}
+    </Button>
   );
 }

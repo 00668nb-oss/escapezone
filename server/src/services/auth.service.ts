@@ -33,6 +33,6 @@ export async function login(input: { email: string; password: string }) {
 
 export async function getMe(userId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId }, select: publicUserSelect });
-  if (!user) throw new HttpError(401, 'המשתמשת לא קיימת');
+  if (!user) throw new HttpError(401, 'החשבון לא קיים');
   return user;
 }

@@ -4,9 +4,10 @@ import { useRoom } from "../hooks/useRoom";
 import { useSaveRoom } from "../hooks/useSaveRoom";
 import { useForm } from "react-hook-form";
 import { Loading } from "../components/Loading";
-import { FormField } from "../components/FormField";
+import { FormTextField } from "../components/FormTextField";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { ApiError } from "../api/client";
+import { Alert, Box, Button, Paper, Typography } from "@mui/material";
 
 type RoomFormValues = {
   name: string;
@@ -71,110 +72,92 @@ export function RoomFormPage() {
     if (isLoading) return <Loading />;
   }
   return (
-    <form className="admin-form" onSubmit={handleSubmit(onSubmit)}>
-      <h1>{isEdit ? "עריכת חדר" : "חדר חדש"}</h1>
-      <FormField label="שם" htmlFor="name" error={errors.name?.message}>
-        <input
-          id="name"
-          type="text"
-          {...register("name", {
-            required: "חובה להזין שם",
-            minLength: { value: 2, message: "שם קצר מדי" },
-          })}
-        />
-      </FormField>
-
-      <FormField
-        label="תמונה"
-        htmlFor="imageUrl"
-        error={errors.imageUrl?.message}
-      >
-        <input
-          id="imageUrl"
-          type="url"
-          {...register("imageUrl", { required: "חובה להזין תמונה" })}
-        />
-      </FormField>
+    <Paper
+      component="form"
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{ maxWidth: "38rem", mx: "auto", p: 4, display: "grid", gap: 2 }}
+    >
+      <Typography variant="h4" component="h1">
+        {isEdit ? "עריכת חדר" : "חדר חדש"}
+      </Typography>
+      <FormTextField
+        label="שם"
+        registration={register("name", {
+          required: "חובה להזין שם",
+          minLength: { value: 2, message: "שם קצר מדי" },
+        })}
+        errorMessage={errors.name?.message}
+      />
+      <FormTextField
+        label="כתובת תמונה"
+        registration={register("imageUrl", { required: "חובה להזין תמונה" })}
+        errorMessage={errors.imageUrl?.message}
+      />
       {imageUrl && (
-        <img className="image-preview" src={imageUrl} alt="תצוגה מקדימה" />
+        <Box
+          component="img"
+          src={imageUrl}
+          alt="תצוגה מקדימה"
+          sx={{ width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 2 }}
+        />
       )}
-
-      <FormField
+      <FormTextField
         label="קטגוריה"
-        htmlFor="category"
-        error={errors.category?.message}
-      >
-        <input
-          id="category"
-          type="text"
-          {...register("category", { required: "חובה להזין קטגוריה" })}
-        />
-      </FormField>
-
-      <FormField
+        registration={register("category", { required: "חובה להזין קטגוריה" })}
+        errorMessage={errors.category?.message}
+      />
+      <FormTextField
         label="תיאור"
-        htmlFor="description"
-        error={errors.description?.message}
-      >
-        <textarea
-          id="description"
-          {...register("description", { required: "חובה להזין תיאור" })}
-        />
-      </FormField>
-
-      <FormField
-        label="זמן"
-        htmlFor="timeLimit"
-        error={errors.timeLimit?.message}
-      >
-        <input
-          id="timeLimit"
-          type="number"
-          {...register("timeLimit", {
-            required: "חובה להזין זמן",
-            valueAsNumber: true,
-            min: { value: 1, message: "לפחות דקה" },
-            max: { value: 180, message: "עד 180 דקות" },
-          })}
-        />
-      </FormField>
-
-      <FormField
+        multiline
+        minRows={3}
+        registration={register("description", { required: "חובה להזין תיאור" })}
+        errorMessage={errors.description?.message}
+      />
+      <FormTextField
+        label="זמן (בדקות)"
+        type="number"
+        registration={register("timeLimit", {
+          required: "חובה להזין זמן",
+          valueAsNumber: true,
+          min: { value: 1, message: "לפחות דקה" },
+          max: { value: 180, message: "עד 180 דקות" },
+        })}
+        errorMessage={errors.timeLimit?.message}
+      />
+      <FormTextField
+        select
         label="קושי"
-        htmlFor="difficulty"
-        error={errors.difficulty?.message}
+        slotProps={{ select: { native: true } }}
+        registration={register("difficulty")}
+        errorMessage={errors.difficulty?.message}
       >
-        <select id="difficulty" {...register("difficulty")}>
-          <option value="easy">קל</option>
-          <option value="medium">בינוני</option>
-          <option value="hard">קשה</option>
-        </select>
-      </FormField>
-
-      <FormField label="סטטוס" htmlFor="status" error={errors.status?.message}>
-        <select id="status" {...register("status")}>
-          <option value="draft">טיוטה</option>
-          <option value="published">פורסם</option>
-          <option value="archived">בארכיון</option>
-        </select>
-      </FormField>
-
-      <FormField
+        <option value="easy">קל</option>
+        <option value="medium">בינוני</option>
+        <option value="hard">קשה</option>
+      </FormTextField>
+      <FormTextField
+        select
+        label="סטטוס"
+        slotProps={{ select: { native: true } }}
+        registration={register("status")}
+        errorMessage={errors.status?.message}
+      >
+        <option value="draft">טיוטה</option>
+        <option value="published">פורסם</option>
+        <option value="archived">בארכיון</option>
+      </FormTextField>
+      <FormTextField
         label="טקסט סיום (אופציונלי)"
-        htmlFor="finalText"
-        error={errors.finalText?.message}
-      >
-        <textarea id="finalText" {...register("finalText")} />
-      </FormField>
-
-      {errors.root && (
-        <p role="alert" className="field-error">
-          {errors.root.message}
-        </p>
-      )}
-      <button type="submit" disabled={isPending}>
-        שמירה
-      </button>
-    </form>
+        multiline
+        minRows={3}
+        registration={register("finalText")}
+        errorMessage={errors.finalText?.message}
+      />
+      {errors.root && <Alert severity="error">{errors.root.message}</Alert>}
+      <Button type="submit" variant="contained" size="large" disabled={isPending}>
+        {isPending ? "שומרים..." : "שמירה"}
+      </Button>
+    </Paper>
   );
 }

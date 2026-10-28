@@ -34,6 +34,8 @@ export type Puzzle = {
   hotspotLabel: string;
   storyText: string | null;
   solved?: boolean;
+  hint?: string | null;
+  codeLength?: number | null;
 };
 
 export type ProgressStatus = "not_started" | "in_progress" | "completed";
@@ -64,6 +66,8 @@ export type PuzzleInput = {
   hotspotLabel: string;
   storyText?: string | null;
   answer: string;
+  hint?: string | null;
+  codeLength?: number | null;
 };
 
 export type RoomFilters = {

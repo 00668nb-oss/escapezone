@@ -65,6 +65,8 @@ model Puzzle {
   hotspotLabel String
   storyText    String
   answer       String
+  hint         String? // רמז (אופציונלי) שהשחקן יכול לבקש
+  codeLength   Int? // אם מוגדר: הלקוח מציג מנעול ספרות באורך הזה במקום שדה טקסט
   room         Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
   solved       SolvedPuzzle[]
 

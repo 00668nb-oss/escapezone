@@ -3,9 +3,22 @@ import type { Status } from "../types";
 import { useRooms } from "../hooks/useRooms";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { Link } from "react-router-dom";
-import { FormField } from "../components/FormField";
 import { Loading } from "../components/Loading";
 import { difficultyLabels, statusLabels } from "../constants/labels";
+import {
+  Box,
+  Button,
+  Chip,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 export function AdminRoomsPage() {
   const [status, setStatus] = useState<Status | "">("");
@@ -20,50 +33,80 @@ export function AdminRoomsPage() {
 
   return (
     <>
-      <h1>ניהול חדרים</h1>
-      <div className="admin-toolbar">
-        <Link to="/admin/rooms/new">חדר חדש</Link>
-        <FormField label="סינון לפי סטטוס" htmlFor="status-filter">
-          <select
-            id="status-filter"
-            value={status}
-            onChange={(event) => setStatus(event.target.value as Status | "")}
-          >
-            <option value="">הכל</option>
-            <option value="draft">טיוטה</option>
-            <option value="published">פורסם</option>
-            <option value="archived">בארכיון</option>
-          </select>
-        </FormField>
-      </div>
+      <Typography variant="h3" component="h1" gutterBottom>
+        ניהול חדרים
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 3,
+        }}
+      >
+        <Button component={Link} to="/admin/rooms/new" variant="contained">
+          חדר חדש
+        </Button>
+        <TextField
+          select
+          label="סינון לפי סטטוס"
+          value={status}
+          onChange={(event) => setStatus(event.target.value as Status | "")}
+          slotProps={{ select: { native: true }, inputLabel: { shrink: true } }}
+          sx={{ minWidth: 200 }}
+        >
+          <option value="">הכל</option>
+          <option value="draft">טיוטה</option>
+          <option value="published">פורסם</option>
+          <option value="archived">בארכיון</option>
+        </TextField>
+      </Box>
       {isLoading && <Loading />}
-      {rooms?.length === 0 && <p className="rooms-empty">אין חדרים</p>}
+      {rooms?.length === 0 && (
+        <Typography color="text.secondary" sx={{ textAlign: "center", py: 6 }}>
+          אין חדרים
+        </Typography>
+      )}
       {rooms && rooms.length > 0 && (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>שם</th>
-              <th>קטגוריה</th>
-              <th>קושי</th>
-              <th>סטטוס</th>
-              <th>פעולות</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rooms.map((room) => (
-              <tr key={room.id}>
-                <td>{room.name}</td>
-                <td>{room.category}</td>
-                <td>{difficultyLabels[room.difficulty]}</td>
-                <td>{statusLabels[room.status]}</td>
-                <td>
-                  <Link to={`/admin/rooms/${room.id}/edit`}>עריכה</Link>
-                  <Link to={`/admin/rooms/${room.id}/puzzles`}>חידות</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>שם</TableCell>
+                <TableCell>קטגוריה</TableCell>
+                <TableCell>קושי</TableCell>
+                <TableCell>סטטוס</TableCell>
+                <TableCell>פעולות</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rooms.map((room) => (
+                <TableRow key={room.id} hover>
+                  <TableCell>{room.name}</TableCell>
+                  <TableCell>{room.category}</TableCell>
+                  <TableCell>{difficultyLabels[room.difficulty]}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={statusLabels[room.status]}
+                      size="small"
+                      color={room.status === "published" ? "success" : "default"}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button component={Link} to={`/admin/rooms/${room.id}/edit`} size="small">
+                      עריכה
+                    </Button>
+                    <Button component={Link} to={`/admin/rooms/${room.id}/puzzles`} size="small">
+                      חידות
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </>
   );

@@ -7,6 +7,8 @@ export const puzzleBodySchema = z.object({
   hotspotLabel: z.string().trim().min(1).max(50),
   storyText: z.string().trim().min(1).max(3000),
   answer: z.string().trim().min(1).max(200),
+  hint: z.string().trim().max(500).nullable().optional(),
+  codeLength: z.number().int().min(1).max(8).nullable().optional(),
 });
 
 export const puzzleUpdateSchema = puzzleBodySchema.partial();

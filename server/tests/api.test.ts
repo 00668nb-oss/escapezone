@@ -350,6 +350,21 @@ describe('answers + progress', () => {
     expect((await api().post(`/api/progress/${draft.id}/start`).set(bearer(playerToken))).status).toBe(404);
   });
 
+  it('POST restart מוחק את ההתקדמות (כולל חידות שנפתרו) ומתחיל מחדש', async () => {
+    const room = await createRoomWithPuzzles();
+    await api().post(`/api/progress/${room.id}/start`).set(bearer(playerToken));
+    const first = room.puzzles[0]!;
+    const solved = await api().post(`/api/puzzles/${first.id}/answer`).set(bearer(playerToken)).send({ answer: first.answer });
+    expect(solved.body).toEqual({ correct: true });
+
+    const restarted = await api().post(`/api/progress/${room.id}/restart`).set(bearer(playerToken));
+    expect(restarted.status).toBe(200);
+    expect(restarted.body).toMatchObject({ roomId: room.id, status: 'in_progress', solvedPuzzleIds: [] });
+    expect(await prisma.solvedPuzzle.count()).toBe(0);
+    expect(await prisma.progress.count()).toBe(1);
+    expect((await api().post(`/api/progress/${room.id}/restart`)).status).toBe(401);
+  });
+
   it('תשובה ריקה → 400', async () => {
     const room = await createRoomWithPuzzles();
     expect((await api().post(`/api/puzzles/${room.puzzles[0]!.id}/answer`).set(bearer(playerToken)).send({ answer: '' })).status).toBe(400);

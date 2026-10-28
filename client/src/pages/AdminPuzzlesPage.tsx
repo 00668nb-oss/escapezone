@@ -5,6 +5,18 @@ import type { Puzzle } from "../types";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { Loading } from "../components/Loading";
 import { PuzzleForm } from "../components/PuzzleForm";
+import {
+  Box,
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 
 export function AdminPuzzlesPage() {
   const { id } = useParams();
@@ -15,35 +27,43 @@ export function AdminPuzzlesPage() {
   if (isLoading || !puzzles) return <Loading />;
   return (
     <>
-      <h1>ניהול חידות</h1>
-      <Link to={`/admin`}>חזרה לחדרים</Link>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>סדר</th>
-            <th>כותרת</th>
-            <th>שם החפץ</th>
-            <th>פעולות</th>
-          </tr>
-        </thead>
-        <tbody>
-          {puzzles.map((puzzle) => (
-            <tr key={puzzle.id}>
-              <td>{puzzle.order}</td>
-              <td>{puzzle.title}</td>
-              <td>{puzzle.hotspotLabel}</td>
-              <td>
-                <button type="button" onClick={() => setEditing(puzzle)}>
-                  עריכה
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button type="button" onClick={() => setEditing(null)}>
-        חידה חדשה
-      </button>
+      <Typography variant="h3" component="h1" gutterBottom>
+        ניהול חידות
+      </Typography>
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Button component={Link} to="/admin" variant="outlined" color="inherit">
+          חזרה לחדרים
+        </Button>
+        <Button variant="contained" onClick={() => setEditing(null)}>
+          חידה חדשה
+        </Button>
+      </Box>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>סדר</TableCell>
+              <TableCell>כותרת</TableCell>
+              <TableCell>שם החפץ</TableCell>
+              <TableCell>פעולות</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {puzzles.map((puzzle) => (
+              <TableRow key={puzzle.id} hover>
+                <TableCell>{puzzle.order}</TableCell>
+                <TableCell>{puzzle.title}</TableCell>
+                <TableCell>{puzzle.hotspotLabel}</TableCell>
+                <TableCell>
+                  <Button size="small" onClick={() => setEditing(puzzle)}>
+                    עריכה
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <PuzzleForm
         key={editing?.id ?? "new"}
         roomId={roomId}
