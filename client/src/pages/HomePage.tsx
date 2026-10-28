@@ -13,7 +13,7 @@ const steps = [
 
 export function HomePage() {
   const { user } = useAuth();
-  const { data: rooms } = useRooms();
+  const { data: rooms } = useRooms({ status: "published" });
 
   return (
     <Box sx={{ display: "grid", gap: 10 }}>
@@ -25,19 +25,16 @@ export function HomePage() {
         }}
       >
         <Box className="hero-inner">
-          <Typography className="kicker" sx={{ mb: 2 }}>
-            חדרי בריחה דיגיטליים · 15 דקות
-          </Typography>
           <Typography
             variant="h1"
-            sx={{ fontSize: { xs: "3rem", md: "5.6rem" }, lineHeight: 1.02, mb: 3 }}
+            sx={{ fontSize: { xs: "2.8rem", md: "4.8rem" }, lineHeight: 1.05, mb: 2.5 }}
           >
             הדלת נעולה.
             <br />
             הסיפור מחכה.
           </Typography>
-          <Typography sx={{ fontSize: "1.2rem", maxWidth: "32rem", mb: 3.5, color: "text.secondary" }}>
-            אספו ראיות, פתרו חידות וגלו מה באמת קרה, לפני שהזמן נגמר.
+          <Typography sx={{ fontSize: "1.2rem", maxWidth: "30rem", mb: 3, color: "text.secondary" }}>
+            חדרי בריחה דיגיטליים. אספו ראיות, פתרו חידות וגלו מה באמת קרה, לפני שהזמן נגמר.
           </Typography>
           <Box sx={{ maxWidth: "32rem", mb: 4 }}>
             <EchoMessage text="זוהתה כניסה חדשה. הדלת ננעלה מאחוריכם. יש לכם 15 דקות." />

@@ -50,6 +50,7 @@ export function RegisterPage() {
       </Typography>
       <FormTextField
         label="שם"
+        autoComplete="off"
         registration={register("name", {
           required: "חובה להזין שם",
           minLength: { value: 2, message: "שם קצר מדי" },
@@ -59,12 +60,14 @@ export function RegisterPage() {
       <FormTextField
         label="אימייל"
         type="email"
+        autoComplete="off"
         registration={register("email", { required: "חובה להזין אימייל" })}
         errorMessage={errors.email?.message}
       />
       <FormTextField
         label="סיסמה"
         type="password"
+        autoComplete="new-password"
         registration={register("password", {
           required: "חובה להזין סיסמה",
           minLength: { value: 8, message: "לפחות 8 תווים" },

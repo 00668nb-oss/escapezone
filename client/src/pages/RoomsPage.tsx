@@ -26,7 +26,7 @@ export function RoomsPage() {
     }
     setSearchParams(params);
   }
-  const { data: rooms, isLoading, error } = useRooms(filters);
+  const { data: rooms, isLoading, error } = useRooms({ ...filters, status: "published" }) // גם מנהלת רואה כאן רק חדרים שפורסמו;
   const { data: progressList } = useAllProgress();
   return (
     <>

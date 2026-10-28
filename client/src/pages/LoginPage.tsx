@@ -50,12 +50,14 @@ export function LoginPage() {
       <FormTextField
         label="אימייל"
         type="email"
+        autoComplete="username"
         registration={register("email", { required: "חובה להזין אימייל" })}
         errorMessage={errors.email?.message}
       />
       <FormTextField
         label="סיסמה"
         type="password"
+        autoComplete="current-password"
         registration={register("password", { required: "חובה להזין סיסמה" })}
         errorMessage={errors.password?.message}
       />

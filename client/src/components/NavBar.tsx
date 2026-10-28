@@ -1,4 +1,5 @@
 import { Link as RouterLink, NavLink, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { KeyIcon } from "./KeyIcon";
@@ -13,9 +14,12 @@ const activeLinkSx = {
 export function NavBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   function handleLogout() {
     logout();
+    // מנקים את כל הנתונים השמורים, כדי שהמשתמשת הבאה לא תראה מה שראתה המנהלת (למשל חדרי טיוטה)
+    queryClient.clear();
     navigate("/");
   }
   return (
