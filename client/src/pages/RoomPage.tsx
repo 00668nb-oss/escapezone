@@ -131,7 +131,11 @@ export function RoomPage() {
       : { x: clamp(target.x, 35, 65), y: clamp(target.y, 35, 65) };
 
   const title = (
-    <Typography variant="h5" component="h1" sx={{ fontWeight: 800 }}>
+    <Typography
+      variant="h5"
+      component="h1"
+      sx={{ fontWeight: 800, textShadow: "0 1px 8px rgba(0, 0, 0, 0.9)" }}
+    >
       {room.name}
     </Typography>
   );
@@ -141,45 +145,50 @@ export function RoomPage() {
       minutes={room.timeLimit}
     />
   );
-  const status = (
-    <Box sx={{ display: "grid", gap: 1 }}>
-      <EchoMessage key={echoText} text={echoText} />
+  const progressBlock = (
+    <Box sx={{ display: "grid", gap: 0.5 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ textShadow: "0 1px 6px rgba(0, 0, 0, 0.95)" }}
+      >
+        {solvedCount} מתוך {puzzles.length} חידות נפתרו
+      </Typography>
       <LinearProgress
         variant="determinate"
         value={(solvedCount / puzzles.length) * 100}
         color="secondary"
-        sx={{ height: 8, borderRadius: 4 }}
       />
-      <Typography variant="body2" color="text.secondary">
-        {solvedCount} מתוך {puzzles.length} חידות נפתרו
-      </Typography>
     </Box>
   );
 
   return (
-    <Box sx={{ display: "grid", gap: 1.5, width: "100%", minWidth: 0, maxWidth: "80rem", mx: "auto" }}>
-      {/* במסך קטן הכותרת והמצב מעל ומתחת לתמונה; במסך גדול הם שכבה מעל התמונה */}
+    // במסך רחב התמונה ממלאת את כל גובה המסך, ולכן מבטלים את הריווח של העמוד סביבה
+    <Box sx={{ width: "100%", minWidth: 0, mx: "auto", mt: { md: "-28px" }, mb: { md: "-48px" } }}>
+      {/* במסך קטן: שם החדר, שעון והתקדמות מעל התמונה */}
       <Box
         sx={{
-          display: { xs: "flex", md: "none" },
-          justifyContent: "space-between",
+          display: { xs: "grid", md: "none" },
+          gridTemplateColumns: "1fr auto",
           alignItems: "center",
           gap: 1,
-          flexWrap: "wrap",
+          pb: 1.5,
         }}
       >
         {title}
         {timer}
+        <Box sx={{ gridColumn: "1 / -1" }}>{progressBlock}</Box>
       </Box>
       <RoomScene
         imageUrl={room.imageUrl}
         alt={room.name}
-        brightness={0.55 + 0.15 * solvedCount}
+        brightness={0.6 + 0.13 * solvedCount}
         flickerKey={solvedCount}
         focusX={focus.x}
         focusY={focus.y}
         zoom={zoom}
         overlay={
+          // במסך רחב: הכול שקוף מעל התמונה. למעלה שם החדר, התקדמות ושעון; למטה שורת ECHO דקה
           <>
             <Box
               sx={{
@@ -187,16 +196,18 @@ export function RoomPage() {
                 top: 0,
                 insetInline: 0,
                 zIndex: 3,
-                py: 1.5,
-                px: 4,
-                display: { xs: "none", md: "flex" },
-                justifyContent: "space-between",
+                display: { xs: "none", md: "grid" },
+                gridTemplateColumns: "auto 1fr auto",
                 alignItems: "center",
-                background: "linear-gradient(rgba(0, 0, 0, 0.75), transparent)",
+                gap: 3,
+                px: 3,
+                py: 1.5,
+                background: "linear-gradient(rgba(0, 0, 0, 0.5), transparent)",
                 pointerEvents: "none",
               }}
             >
               {title}
+              {progressBlock}
               {timer}
             </Box>
             <Box
@@ -205,14 +216,14 @@ export function RoomPage() {
                 bottom: 0,
                 insetInline: 0,
                 zIndex: 3,
-                py: 1.5,
-                px: 4,
                 display: { xs: "none", md: "block" },
-                background: "linear-gradient(transparent, rgba(0, 0, 0, 0.85))",
+                px: 3,
+                py: 1.5,
+                background: "linear-gradient(transparent, rgba(0, 0, 0, 0.45))",
                 pointerEvents: "none",
               }}
             >
-              {status}
+              <EchoMessage key={echoText} text={echoText} compact />
             </Box>
           </>
         }
@@ -230,7 +241,10 @@ export function RoomPage() {
           />
         ))}
       </RoomScene>
-      <Box sx={{ display: { xs: "block", md: "none" } }}>{status}</Box>
+      {/* במסך קטן: הודעת ECHO מתחת לתמונה */}
+      <Box sx={{ display: { xs: "block", md: "none" }, pt: 1.5 }}>
+        <EchoMessage key={echoText} text={echoText} />
+      </Box>
       {selectedPuzzle && (
         <PuzzlePanel
           key={selectedPuzzle.id}

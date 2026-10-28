@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import { Box } from "@mui/material";
+import { showPlaceholder } from "../utils/imageFallback";
 
 type RoomSceneProps = {
   imageUrl: string;
@@ -11,7 +12,7 @@ type RoomSceneProps = {
   focusY: number;
   zoom: number; // 1 = בלי זום
   children: ReactNode; // החפצים (זזים וגדלים יחד עם התמונה)
-  overlay?: ReactNode; // שכבה קבועה מעל הסצנה (שעון, הודעות), לא מושפעת מהזום
+  overlay?: ReactNode; // שכבה קבועה בתוך גבולות התמונה (שעון, הודעות), לא מושפעת מהזום
 };
 
 // הסצנה ממלאת את כל רוחב ואת כל גובה המסך (התמונה "מכסה" אותה, כמו background-size: cover),
@@ -57,6 +58,7 @@ export function RoomScene({
               src={imageUrl}
               alt={alt}
               className="flicker"
+              onError={showPlaceholder}
               onLoad={(event: SyntheticEvent<HTMLImageElement>) =>
                 setAspect(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight)
               }
@@ -72,8 +74,8 @@ export function RoomScene({
             {children}
           </Box>
         </Box>
+        {overlay}
       </Box>
-      {overlay}
     </Box>
   );
 }

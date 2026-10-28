@@ -3,7 +3,6 @@ import { Box, Button, Stack, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { useRooms } from "../hooks/useRooms";
 import { RoomCard } from "../components/RoomCard";
-import { EchoMessage } from "../components/EchoMessage";
 
 const steps = [
   { title: "בחרו תיק", text: "בחרו תעלומה לפי רמת קושי וקטגוריה." },
@@ -33,12 +32,10 @@ export function HomePage() {
             <br />
             הסיפור מחכה.
           </Typography>
-          <Typography sx={{ fontSize: "1.2rem", maxWidth: "30rem", mb: 3, color: "text.secondary" }}>
+          <Typography sx={{ fontSize: "1.2rem", maxWidth: "30rem", mb: 4, color: "text.secondary" }}>
             חדרי בריחה דיגיטליים. אספו ראיות, פתרו חידות וגלו מה באמת קרה, לפני שהזמן נגמר.
           </Typography>
-          <Box sx={{ maxWidth: "32rem", mb: 4 }}>
-            <EchoMessage text="זוהתה כניסה חדשה. הדלת ננעלה מאחוריכם. יש לכם 15 דקות." />
-          </Box>
+
           <Stack direction="row" spacing={3} useFlexGap sx={{ flexWrap: "wrap", alignItems: "center" }}>
             {user ? (
               <Button component={Link} to="/rooms" variant="contained" size="large" sx={{ px: 5, py: 1.3 }}>

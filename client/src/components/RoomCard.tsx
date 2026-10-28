@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import type { Room } from "../types";
 import { difficultyLabels } from "../constants/labels";
+import { showPlaceholder } from "../utils/imageFallback";
 
 export type RoomCardProps = {
   room: Room;
@@ -28,6 +29,7 @@ export function RoomCard({ room, completed }: RoomCardProps) {
             component="img"
             image={room.imageUrl}
             alt={room.name}
+            onError={showPlaceholder}
             sx={{ aspectRatio: "16 / 9" }}
           />
         </Box>
