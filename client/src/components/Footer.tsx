@@ -14,19 +14,9 @@ export function Footer() {
       component="footer"
       sx={{ borderTop: 1, borderColor: "divider", mt: 6, px: 3, py: 4 }}
     >
-      <Box
-        sx={{
-          maxWidth: 1100,
-          mx: "auto",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 4,
-        }}
-      >
-        <Box sx={{ maxWidth: "22rem" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1 }}>
+      <Box sx={{ display: "grid", justifyItems: "center", textAlign: "center", gap: 2.5 }}>
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.2, mb: 1 }}>
             <KeyIcon />
             <Typography
               sx={{ fontFamily: "var(--heading)", fontWeight: 700, letterSpacing: "0.22em" }}
@@ -38,7 +28,7 @@ export function Footer() {
             חדרי בריחה דיגיטליים. אספו ראיות, פתרו חידות וגלו מה באמת קרה.
           </Typography>
         </Box>
-        <Box component="nav" aria-label="קישורים בתחתית" sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+        <Box component="nav" aria-label="קישורים בתחתית" sx={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center" }}>
           <Link component={RouterLink} to="/" sx={linkSx}>
             דף הבית
           </Link>
@@ -65,7 +55,7 @@ export function Footer() {
       <Typography
         variant="caption"
         color="text.secondary"
-        sx={{ display: "block", maxWidth: 1100, mx: "auto", mt: 3, opacity: 0.7 }}
+        sx={{ display: "block", textAlign: "center", mt: 3, opacity: 0.7 }}
       >
         © {new Date().getFullYear()} EscapeZone. כל הזכויות שמורות.
       </Typography>
