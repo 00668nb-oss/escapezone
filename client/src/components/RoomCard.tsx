@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Card,
+  Box,
   CardActionArea,
   CardContent,
   CardMedia,
@@ -16,24 +16,21 @@ export type RoomCardProps = {
   completed?: boolean;
 };
 
+// כרטיס חדר בסגנון תיק בארכיון: לשונית עם מספר תיק, ואם נפתר, חותמת
 export function RoomCard({ room, completed }: RoomCardProps) {
   return (
-    <Card sx={{ position: "relative", height: "100%" }}>
+    <Box className="case-card">
       <CardActionArea component={Link} to={`/rooms/${room.id}`} sx={{ height: "100%" }}>
-        {completed && (
-          <Chip
-            label="הושלם ✓"
-            color="success"
-            size="small"
-            sx={{ position: "absolute", top: 12, insetInlineStart: 12, zIndex: 1, fontWeight: 700 }}
+        <Box className="case-tab">תיק מס׳ {String(room.id).padStart(3, "0")}</Box>
+        <Box sx={{ position: "relative" }}>
+          {completed && <Box className="stamp-mark">נסגר</Box>}
+          <CardMedia
+            component="img"
+            image={room.imageUrl}
+            alt={room.name}
+            sx={{ aspectRatio: "16 / 9" }}
           />
-        )}
-        <CardMedia
-          component="img"
-          image={room.imageUrl}
-          alt={room.name}
-          sx={{ aspectRatio: "16 / 9" }}
-        />
+        </Box>
         <CardContent>
           <Typography variant="h6" component="h3" gutterBottom>
             {room.name}
@@ -45,6 +42,6 @@ export function RoomCard({ room, completed }: RoomCardProps) {
           </Stack>
         </CardContent>
       </CardActionArea>
-    </Card>
+    </Box>
   );
 }

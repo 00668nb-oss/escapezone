@@ -36,6 +36,8 @@ export type Puzzle = {
   solved?: boolean;
   hint?: string | null;
   codeLength?: number | null;
+  hotspotX?: number | null;
+  hotspotY?: number | null;
 };
 
 export type ProgressStatus = "not_started" | "in_progress" | "completed";
@@ -68,6 +70,8 @@ export type PuzzleInput = {
   answer: string;
   hint?: string | null;
   codeLength?: number | null;
+  hotspotX?: number | null;
+  hotspotY?: number | null;
 };
 
 export type RoomFilters = {

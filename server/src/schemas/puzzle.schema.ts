@@ -7,6 +7,8 @@ export const puzzleBodySchema = z.object({
   hotspotLabel: z.string().trim().min(1).max(50),
   storyText: z.string().trim().min(1).max(3000),
   answer: z.string().trim().min(1).max(200),
+  hotspotX: z.number().int().min(0).max(100).nullable().optional(),
+  hotspotY: z.number().int().min(0).max(100).nullable().optional(),
   hint: z.string().trim().max(500).nullable().optional(),
   codeLength: z.number().int().min(1).max(8).nullable().optional(),
 });

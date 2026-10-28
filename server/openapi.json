@@ -217,6 +217,16 @@
             "type": "string",
             "nullable": true
           },
+          "hotspotX": {
+            "type": "integer",
+            "nullable": true,
+            "description": "מיקום אופקי של החפץ באחוזים (0-100)"
+          },
+          "hotspotY": {
+            "type": "integer",
+            "nullable": true,
+            "description": "מיקום אנכי של החפץ באחוזים (0-100)"
+          },
           "hint": {
             "type": "string",
             "nullable": true,

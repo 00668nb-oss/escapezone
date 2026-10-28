@@ -15,6 +15,8 @@ const publicSelect = {
   prompt: true,
   hotspotLabel: true,
   storyText: true,
+  hotspotX: true,
+  hotspotY: true,
   hint: true,
   codeLength: true,
 } as const;

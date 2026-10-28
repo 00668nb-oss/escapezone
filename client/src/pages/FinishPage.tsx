@@ -5,7 +5,7 @@ import { useRestartRoom } from "../hooks/useRestartRoom";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "../api/client";
 import { Alert, Box, Button, Paper, Typography } from "@mui/material";
-import { Confetti } from "../components/Confetti";
+import { Stamp } from "../components/Stamp";
 import { DoorOpen } from "../components/DoorOpen";
 
 export function FinishPage() {
@@ -25,12 +25,12 @@ export function FinishPage() {
 
   return (
     <Box sx={{ display: "grid", gap: 2, maxWidth: "46rem", mx: "auto" }}>
-      <Confetti />
       <DoorOpen />
+      <Stamp text="התיק נסגר" />
       <Typography variant="h3" component="h1">
         הסיפור המלא – {story.roomName}
       </Typography>
-      <Alert severity="success">כל הכבוד! סיימתם את החדר</Alert>
+      <Alert severity="success">החקירה הושלמה. כל הראיות נאספו.</Alert>
       {story.puzzles.map((puzzle) => (
         <Paper key={puzzle.id} sx={{ p: 2 }}>
           <Typography variant="h6" component="h3" gutterBottom>

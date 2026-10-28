@@ -190,6 +190,8 @@ export const openapi = {
           prompt: { type: 'string' },
           hotspotLabel: { type: 'string' },
           storyText: { type: 'string', nullable: true },
+          hotspotX: { type: 'integer', nullable: true, description: 'מיקום אופקי של החפץ באחוזים (0-100)' },
+          hotspotY: { type: 'integer', nullable: true, description: 'מיקום אנכי של החפץ באחוזים (0-100)' },
           hint: { type: 'string', nullable: true, description: 'רמז אופציונלי שהשחקן יכול לבקש' },
           codeLength: { type: 'integer', nullable: true, description: 'אורך קוד ספרות (מנעול); null = תשובת טקסט' },
           solved: { type: 'boolean', description: 'רק לשחקנית' },

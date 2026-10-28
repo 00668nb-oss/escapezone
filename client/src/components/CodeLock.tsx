@@ -1,11 +1,19 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, ButtonBase, Typography } from "@mui/material";
 
 type CodeLockProps = {
-  digits: number[]; // הספרות הנוכחיות, ספרה לכל גלגל
+  digits: number[]; // הספרות הנוכחיות, ספרה לכל חוגה
   onChange: (digits: number[]) => void;
 };
 
-// מנעול ספרות: לכל גלגל חץ למעלה, חץ למטה והספרה עצמה (0 עד 9 ובחזרה)
+const arrowSx = {
+  width: 56,
+  height: 26,
+  fontSize: "0.8rem",
+  color: "text.secondary",
+  "&:hover": { color: "primary.main" },
+};
+
+// מנעול ספרות: לכל חוגה חץ למעלה, חץ למטה והספרה עצמה (0 עד 9 ובחזרה)
 export function CodeLock({ digits, onChange }: CodeLockProps) {
   function change(index: number, step: number) {
     onChange(
@@ -14,34 +22,32 @@ export function CodeLock({ digits, onChange }: CodeLockProps) {
   }
 
   return (
-    <Box dir="ltr" sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}>
+    <Box dir="ltr" sx={{ display: "flex", justifyContent: "center", gap: 1.5, my: 2 }}>
       {digits.map((digit, index) => (
-        <Box key={index} sx={{ display: "grid", justifyItems: "center", gap: 0.5 }}>
-          <Button size="small" aria-label="הגדלת ספרה" onClick={() => change(index, 1)}>
+        <Box key={index} sx={{ display: "grid", justifyItems: "center" }}>
+          <ButtonBase aria-label="הגדלת ספרה" onClick={() => change(index, 1)} sx={arrowSx}>
             ▲
-          </Button>
+          </ButtonBase>
           <Typography
             sx={{
               width: 56,
-              height: 72,
+              height: 70,
               display: "grid",
               placeItems: "center",
               fontSize: "2.4rem",
-              fontWeight: 800,
-              fontFamily: "monospace",
-              color: "secondary.main",
-              bgcolor: "#0e0a18",
-              border: 2,
-              borderColor: "secondary.main",
-              borderRadius: 2,
-              boxShadow: "0 0 14px rgba(245, 194, 107, 0.35) inset",
+              fontWeight: 700,
+              fontFamily: "var(--mono)",
+              color: "#e6dcc4",
+              bgcolor: "#1f1b16",
+              border: "3px solid #3b342b",
+              boxShadow: "inset 0 8px 14px rgba(0,0,0,0.6), inset 0 -8px 14px rgba(0,0,0,0.6)",
             }}
           >
             {digit}
           </Typography>
-          <Button size="small" aria-label="הקטנת ספרה" onClick={() => change(index, -1)}>
+          <ButtonBase aria-label="הקטנת ספרה" onClick={() => change(index, -1)} sx={arrowSx}>
             ▼
-          </Button>
+          </ButtonBase>
         </Box>
       ))}
     </Box>

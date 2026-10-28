@@ -19,18 +19,18 @@ export function EchoMessage({ text }: EchoMessageProps) {
     <Box
       sx={{
         border: 1,
-        borderColor: "success.main",
-        borderRadius: 2,
-        p: 1.5,
-        bgcolor: "rgba(6, 40, 28, 0.6)",
-        fontFamily: "monospace",
-        minHeight: 56,
+        borderColor: "rgba(111, 174, 122, 0.55)",
+        p: 1.2,
+        px: 1.8,
+        bgcolor: "rgba(6, 12, 8, 0.82)",
+        fontFamily: "var(--mono)",
+        minHeight: 52,
       }}
     >
-      <Typography component="span" color="success.main" sx={{ fontWeight: 800 }}>
+      <Typography component="span" color="success.main" sx={{ fontFamily: "inherit", fontWeight: 700 }}>
         ECHO &gt;{" "}
       </Typography>
-      <Typography component="span" color="success.light">
+      <Typography component="span" sx={{ fontFamily: "\"Assistant\", sans-serif", color: "#b6e3bf" }}>
         {text.slice(0, shown)}
         {shown < text.length && "▌"}
       </Typography>

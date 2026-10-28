@@ -2,8 +2,12 @@ import { Link as RouterLink, NavLink, useNavigate } from "react-router-dom";
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 
-// קישור בתפריט: כשהוא פעיל מקבל class בשם active מ-NavLink, והצבע הופך לזהב
-const activeLinkSx = { "&.active": { color: "secondary.main" } };
+// קישור בתפריט: כשהוא פעיל מקבל class בשם active מ-NavLink, ומודגש בנחושת
+const activeLinkSx = {
+  borderRadius: 0,
+  borderBottom: "2px solid transparent",
+  "&.active": { color: "secondary.main", borderBottomColor: "secondary.main" },
+};
 
 export function NavBar() {
   const { user, logout } = useAuth();
@@ -19,8 +23,8 @@ export function NavBar() {
       color="transparent"
       elevation={0}
       sx={{
-        backdropFilter: "blur(10px)",
-        bgcolor: "rgba(14, 10, 24, 0.78)",
+        backdropFilter: "blur(8px)",
+        bgcolor: "rgba(9, 9, 10, 0.86)",
         borderBottom: 1,
         borderColor: "divider",
       }}
@@ -31,13 +35,23 @@ export function NavBar() {
         <Typography
           component={RouterLink}
           to="/"
-          variant="h6"
-          sx={{ fontWeight: 800, color: "text.primary", textDecoration: "none" }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.2,
+            fontFamily: "var(--heading)",
+            fontWeight: 700,
+            fontSize: "1.1rem",
+            letterSpacing: "0.3em",
+            color: "text.primary",
+            textDecoration: "none",
+            "&::before": { content: '""', width: 8, height: 8, bgcolor: "#9b2226" },
+          }}
         >
-          🔑 EscapeZone
+          ESCAPEZONE
         </Typography>
         <Button component={NavLink} to="/rooms" color="inherit" sx={activeLinkSx}>
-          חדרים
+          החדרים
         </Button>
         {user?.role === "admin" && (
           <Button component={NavLink} to="/admin" color="inherit" sx={activeLinkSx}>

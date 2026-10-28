@@ -14,6 +14,8 @@ type PuzzleFormValues = {
   answer: string;
   hint: string | null;
   codeLength: number | null;
+  hotspotX: number | null;
+  hotspotY: number | null;
 };
 type PuzzleFormProps = { roomId: number; puzzle?: Puzzle; onDone: () => void };
 
@@ -27,7 +29,7 @@ export function PuzzleForm({ roomId, puzzle, onDone }: PuzzleFormProps) {
     reset,
     formState: { errors },
   } = useForm<PuzzleFormValues>({
-    defaultValues: { order: 1, hint: null, codeLength: null },
+    defaultValues: { order: 1, hint: null, codeLength: null, hotspotX: null, hotspotY: null },
     values: puzzle
       ? {
           order: puzzle.order,
@@ -38,6 +40,8 @@ export function PuzzleForm({ roomId, puzzle, onDone }: PuzzleFormProps) {
           answer: "",
           hint: puzzle.hint ?? null,
           codeLength: puzzle.codeLength ?? null,
+          hotspotX: puzzle.hotspotX ?? null,
+          hotspotY: puzzle.hotspotY ?? null,
         }
       : undefined,
   });
@@ -116,6 +120,24 @@ export function PuzzleForm({ roomId, puzzle, onDone }: PuzzleFormProps) {
           setValueAs: (value) => (value?.trim() ? value.trim() : null),
         })}
         errorMessage={errors.hint?.message}
+      />
+      <FormTextField
+        label="מיקום החפץ בתמונה: אופקי, 0 עד 100 (אופציונלי)"
+        type="number"
+        registration={register("hotspotX", {
+          setValueAs: (value) =>
+            value === "" || value == null ? null : Number(value),
+        })}
+        errorMessage={errors.hotspotX?.message}
+      />
+      <FormTextField
+        label="מיקום החפץ בתמונה: אנכי, 0 עד 100 (אופציונלי)"
+        type="number"
+        registration={register("hotspotY", {
+          setValueAs: (value) =>
+            value === "" || value == null ? null : Number(value),
+        })}
+        errorMessage={errors.hotspotY?.message}
       />
       <FormTextField
         label="אורך קוד (מנעול ספרות, אופציונלי)"

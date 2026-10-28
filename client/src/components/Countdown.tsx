@@ -45,10 +45,10 @@ export function Countdown({ storageKey, minutes }: CountdownProps) {
 
   return (
     <Chip
-      label={finished ? "הזמן נגמר! אפשר להמשיך לשחק" : `⏱ ${format(secondsLeft)}`}
+      label={finished ? "הזמן נגמר. אפשר להמשיך לשחק" : format(secondsLeft)}
       color={finished || secondsLeft <= 300 ? "error" : "secondary"}
       variant="outlined"
-      sx={{ fontWeight: 800, fontSize: "1.1rem", py: 2.2 }}
+      sx={{ fontFamily: "var(--mono)", fontWeight: 700, fontSize: "1.15rem", py: 2.2, letterSpacing: "0.15em", border: 0, bgcolor: "rgba(9, 9, 10, 0.55)" }}
     />
   );
 }

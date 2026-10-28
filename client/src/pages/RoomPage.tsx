@@ -12,6 +12,16 @@ import { Countdown } from "../components/Countdown";
 import { EchoMessage } from "../components/EchoMessage";
 import { PuzzlePanel } from "../components/PuzzlePanel";
 import { Box, Button, Chip, LinearProgress, Stack, Typography } from "@mui/material";
+import { RoomScene } from "../components/RoomScene";
+
+// מיקומי ברירת מחדל לחפצים (באחוזים), אם למנהלת לא הוגדר מיקום בחידה
+const defaultPositions = [
+  { x: 75, y: 28 },
+  { x: 40, y: 58 },
+  { x: 79, y: 73 },
+  { x: 45, y: 25 },
+  { x: 20, y: 50 },
+];
 
 // הודעות ECHO לפי מספר החידות שנפתרו (האחרונה חוזרת על עצמה)
 const echoMessages = [
@@ -104,61 +114,123 @@ export function RoomPage() {
   );
   const echoText = echoMessages[Math.min(solvedCount, echoMessages.length - 1)];
 
-  return (
-    <Box sx={{ display: "grid", gap: 1.5, maxWidth: "72rem", mx: "auto" }}>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center", justifyContent: "space-between" }}>
-        <Typography variant="h4" component="h1">
-          {room.name}
-        </Typography>
-        {progress.startedAt && (
-          <Countdown
-            storageKey={`timer:${room.id}:${progress.startedAt}`}
-            minutes={room.timeLimit}
-          />
-        )}
-      </Box>
+  const positions = puzzles.map((puzzle, index) => {
+    const fallback = defaultPositions[index % defaultPositions.length];
+    return { x: puzzle.hotspotX ?? fallback.x, y: puzzle.hotspotY ?? fallback.y };
+  });
+  // המצלמה: זום חזק לחפץ שנבחר, ואחרת התקרבות עדינה אל החפץ הבא לפתרון
+  const selectedIndex = puzzles.findIndex((puzzle) => puzzle.id === selectedId);
+  const focusIndex = selectedIndex !== -1 ? selectedIndex : nextIndex;
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const target = focusIndex !== -1 ? positions[focusIndex] : { x: 50, y: 50 };
+  // בלי חיתוך של הצדדים: ההתקרבות העדינה נשארת קרובה למרכז, ורק בלחיצה המצלמה מתקרבת באמת
+  const zoom = selectedIndex !== -1 ? 1.9 : 1.05;
+  const focus =
+    selectedIndex !== -1
+      ? { x: clamp(target.x, 8, 92), y: clamp(target.y, 8, 92) }
+      : { x: clamp(target.x, 35, 65), y: clamp(target.y, 35, 65) };
+
+  const title = (
+    <Typography variant="h5" component="h1" sx={{ fontWeight: 800 }}>
+      {room.name}
+    </Typography>
+  );
+  const timer = progress.startedAt && (
+    <Countdown
+      storageKey={`timer:${room.id}:${progress.startedAt}`}
+      minutes={room.timeLimit}
+    />
+  );
+  const status = (
+    <Box sx={{ display: "grid", gap: 1 }}>
       <EchoMessage key={echoText} text={echoText} />
-      {/* גודל הסצנה מתאים לגובה המסך (יחס 16:9), כדי שהחדר כולו נראה בלי גלילה */}
+      <LinearProgress
+        variant="determinate"
+        value={(solvedCount / puzzles.length) * 100}
+        color="secondary"
+        sx={{ height: 8, borderRadius: 4 }}
+      />
+      <Typography variant="body2" color="text.secondary">
+        {solvedCount} מתוך {puzzles.length} חידות נפתרו
+      </Typography>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: "grid", gap: 1.5, width: "100%", minWidth: 0, maxWidth: "80rem", mx: "auto" }}>
+      {/* במסך קטן הכותרת והמצב מעל ומתחת לתמונה; במסך גדול הם שכבה מעל התמונה */}
       <Box
         sx={{
-          position: "relative",
-          width: "min(100%, calc((100svh - 330px) * 16 / 9))",
-          minWidth: "min(100%, 480px)",
-          mx: "auto",
+          display: { xs: "flex", md: "none" },
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 1,
+          flexWrap: "wrap",
         }}
       >
-        <Box
-          key={solvedCount}
-          component="img"
-          src={room.imageUrl}
-          alt={room.name}
-          className="flicker"
-          sx={{
-            ...imageSx,
-            filter: `brightness(${0.5 + 0.17 * solvedCount})`,
-            transition: "filter 1.2s",
-          }}
-        />
+        {title}
+        {timer}
+      </Box>
+      <RoomScene
+        imageUrl={room.imageUrl}
+        alt={room.name}
+        brightness={0.55 + 0.15 * solvedCount}
+        flickerKey={solvedCount}
+        focusX={focus.x}
+        focusY={focus.y}
+        zoom={zoom}
+        overlay={
+          <>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                insetInline: 0,
+                zIndex: 3,
+                py: 1.5,
+                px: 4,
+                display: { xs: "none", md: "flex" },
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: "linear-gradient(rgba(0, 0, 0, 0.75), transparent)",
+                pointerEvents: "none",
+              }}
+            >
+              {title}
+              {timer}
+            </Box>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                insetInline: 0,
+                zIndex: 3,
+                py: 1.5,
+                px: 4,
+                display: { xs: "none", md: "block" },
+                background: "linear-gradient(transparent, rgba(0, 0, 0, 0.85))",
+                pointerEvents: "none",
+              }}
+            >
+              {status}
+            </Box>
+          </>
+        }
+      >
         {puzzles.map((puzzle, index) => (
           <HotspotButton
             key={puzzle.id}
             label={puzzle.hotspotLabel}
-            position={index}
+            number={index + 1}
+            x={positions[index].x}
+            y={positions[index].y}
             solved={progress.solvedPuzzleIds.includes(puzzle.id)}
             locked={nextIndex !== -1 && index > nextIndex}
             onClick={() => setSelectedId(puzzle.id)}
           />
         ))}
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={(solvedCount / puzzles.length) * 100}
-        color="secondary"
-        sx={{ height: 10, borderRadius: 5 }}
-      />
-      <Typography color="text.secondary">
-        {solvedCount} מתוך {puzzles.length} חידות נפתרו
-      </Typography>
+      </RoomScene>
+      <Box sx={{ display: { xs: "block", md: "none" } }}>{status}</Box>
       {selectedPuzzle && (
         <PuzzlePanel
           key={selectedPuzzle.id}
