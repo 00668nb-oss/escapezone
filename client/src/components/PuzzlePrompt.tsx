@@ -13,7 +13,7 @@ export function PuzzlePrompt({ text }: PuzzlePromptProps) {
     .filter(Boolean);
 
   return (
-    <Box sx={{ display: "grid", gap: 1.5, mb: 2 }}>
+    <Box sx={{ display: "grid", gap: 1, mb: 1.5 }}>
       {lines.map((line, index) => {
         if (line.startsWith(">")) {
           return (
@@ -37,7 +37,7 @@ export function PuzzlePrompt({ text }: PuzzlePromptProps) {
           );
         }
         return (
-          <Typography key={index} sx={{ lineHeight: 1.9, fontSize: "1.05rem" }}>
+          <Typography key={index} sx={{ lineHeight: 1.7, fontSize: "1rem" }}>
             {line}
           </Typography>
         );

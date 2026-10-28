@@ -6,8 +6,8 @@ type CodeLockProps = {
 };
 
 const arrowSx = {
-  width: 56,
-  height: 26,
+  width: 48,
+  height: 22,
   fontSize: "0.8rem",
   color: "text.secondary",
   "&:hover": { color: "primary.main" },
@@ -22,7 +22,7 @@ export function CodeLock({ digits, onChange }: CodeLockProps) {
   }
 
   return (
-    <Box dir="ltr" sx={{ display: "flex", justifyContent: "center", gap: 1.5, my: 2 }}>
+    <Box dir="ltr" sx={{ display: "flex", justifyContent: "center", gap: 1.5, my: 1 }}>
       {digits.map((digit, index) => (
         <Box key={index} sx={{ display: "grid", justifyItems: "center" }}>
           <ButtonBase aria-label="הגדלת ספרה" onClick={() => change(index, 1)} sx={arrowSx}>
@@ -30,11 +30,11 @@ export function CodeLock({ digits, onChange }: CodeLockProps) {
           </ButtonBase>
           <Typography
             sx={{
-              width: 56,
-              height: 70,
+              width: 48,
+              height: 56,
               display: "grid",
               placeItems: "center",
-              fontSize: "2.4rem",
+              fontSize: "2rem",
               fontWeight: 700,
               fontFamily: "var(--mono)",
               color: "#e6dcc4",

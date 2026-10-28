@@ -27,6 +27,19 @@ type PuzzlePanelProps = {
 
 const backdrop = { sx: { backgroundColor: "rgba(0, 0, 0, 0.35)" } };
 
+// חלון קומפקטי: שוליים קטנים כדי שיישאר מקום, וגלגלת דקה בצבע הדיו (לא הגלגלת האפורה הרחבה)
+const dialogSx = {
+  "& .MuiDialog-paper": { m: 1.5, maxHeight: "calc(100% - 24px)" },
+};
+const contentSx = {
+  py: 1,
+  scrollbarWidth: "thin",
+  scrollbarColor: "rgba(31, 27, 22, 0.35) transparent",
+  "&::-webkit-scrollbar": { width: 6 },
+  "&::-webkit-scrollbar-track": { background: "transparent" },
+  "&::-webkit-scrollbar-thumb": { background: "rgba(31, 27, 22, 0.35)", borderRadius: 3 },
+};
+
 export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
   const { mutate, isPending } = useSubmitAnswer(puzzle.roomId);
   const {
@@ -82,13 +95,14 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
           onClose={onClose}
           fullWidth
           maxWidth="sm"
+          sx={dialogSx}
           slotProps={{ backdrop }}
         >
-          <DialogTitle>
+          <DialogTitle sx={{ py: 1.5 }}>
             {caption}
             {puzzle.title}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={contentSx}>
             <Alert severity="success" className="pop" sx={{ mb: 2 }}>
               הראיה נפתרה
             </Alert>
@@ -111,16 +125,17 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
         onClose={onClose}
         fullWidth
         maxWidth="sm"
+        sx={dialogSx}
         slotProps={{
           paper: { component: "form", onSubmit: handleSubmit(onSubmit) },
           backdrop,
         }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{ py: 1.5 }}>
           {caption}
           {puzzle.title}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={contentSx}>
           <Box key={wrongAttempts} className={wrongAttempts > 0 ? "shake" : undefined}>
             <PuzzlePrompt text={puzzle.prompt} />
             {puzzle.hint &&
