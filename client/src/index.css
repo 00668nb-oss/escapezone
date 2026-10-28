@@ -11,7 +11,8 @@
 
 html,
 body {
-  overflow-x: hidden; /* בלי גלילה אופקית, גם אם משהו חורג מהמסך */
+  /* בלי גלילה אופקית, גם אם משהו חורג מהמסך. clip ולא hidden, כי hidden שובר את הסרגל העליון הדביק */
+  overflow-x: clip;
 }
 
 #root {
