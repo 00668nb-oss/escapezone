@@ -133,11 +133,6 @@ export function PuzzlePanel({ puzzle, onClose }: PuzzlePanelProps) {
                   צריכים רמז?
                 </Button>
               ))}
-            {isPending && (
-              <Alert severity="info" icon={false} sx={{ mb: 2 }}>
-                בודקים את התשובה... אם השרת היה רדום, זה יכול לקחת עד דקה.
-              </Alert>
-            )}
             {errors.root && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {errors.root.message}
